@@ -110,7 +110,7 @@
          fetch("https://api.rss2json.com/v1/api.json?rss_url=https://adnjoo.substack.com/feed")
            .then(r => r.json())
            .then(data => {
-             const posts = data.items.slice(0, 3); // latest 3
+             const posts = data.items; // all
              const container = document.getElementById("substack");
              posts.forEach(p => {
                container.innerHTML += `
