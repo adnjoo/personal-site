@@ -20,6 +20,7 @@
          class="w-24 h-24 rounded-full mx-auto mb-4 shadow object-cover border-2 border-indigo-300 shadow-cyan-500/50"
          />
       <h1 class="text-3xl font-semibold mb-6">Andrew Njoo</h1>
+      <p class="text-lg mb-8">Hi my name's Drew. I'm an AI, Marketing, and Tech Enthusiast; check out my projects and blogs below.</p>
       <nav class="space-y-2 text-lg">
       <a
          class="block hover:underline"
@@ -39,22 +40,23 @@
       <i class="fa-brands fa-youtube text-red-600"></i> SummaTube — AI
       YouTube Summaries
       </a>
-      <a
-         class="block hover:underline"
-         href="https://adnjoo.itch.io/slimefall-brackeys"
-         target="_blank"
-         rel="noopener"
-         >
-      <i class="fa-brands fa-itch-io text-red-700"></i> Slimefall — 2D Game
-      </a>
+      
       <hr class="my-4 border-neutral-300" />
+      <h2 class="gap-2 text-xl font-semibold my-4">
+         <i class="fa-solid fa-pen-nib text-yellow-700">
+         </i>
+         Latest Substack Blogs
+      </h2>
+      
+      <nav id="substack" class="space-y-2 text-lg items-center"></nav>
+      <footer class="flex flex-row space-x-4 justify-center mt-12">
       <a
          class="block hover:underline"
          href="https://github.com/adnjoo"
          target="_blank"
          rel="noopener"
          >
-      <i class="fa-brands fa-github text-neutral-800"></i> GitHub @adnjoo
+      <i class="fa-brands fa-github text-neutral-800 text-2xl"></i>
       </a>
       <a
          class="block hover:underline"
@@ -62,7 +64,7 @@
          target="_blank"
          rel="noopener"
          >
-      <i class="fa-brands fa-instagram text-pink-500"></i> Instagram @adnjoo
+      <i class="fa-brands fa-instagram text-pink-500 text-2xl"></i>
       </a>
       <a
          class="block hover:underline"
@@ -70,7 +72,7 @@
          target="_blank"
          rel="noopener"
          >
-      <i class="fa-brands fa-linkedin text-blue-700"></i> LinkedIn @adnjoo
+      <i class="fa-brands fa-linkedin text-blue-700 text-2xl"></i>
       </a>
       <a
          class="block hover:underline"
@@ -78,8 +80,7 @@
          target="_blank"
          rel="noopener"
          >
-      <i class="fa-brands fa-youtube text-red-600"></i> YouTube
-      @drewnjoo
+      <i class="fa-brands fa-youtube text-red-600 text-2xl"></i>
       </a>
       <a
          class="block hover:underline"
@@ -87,26 +88,20 @@
          target="_blank"
          rel="noopener"
          >
-      <i class="fa-brands fa-soundcloud text-orange-500"></i> SoundCloud @adnjoo
+      <i class="fa-brands fa-soundcloud text-orange-500 text-2xl"></i>
       </a>
-      <hr class="my-4 border-neutral-300" />
-      <h2 class="gap-2 text-xl font-semibold my-4">
-         <i class="fa-solid fa-pen-nib text-yellow-700">
-         </i>
-         Latest Substack
-      </h2>
-      <nav id="substack" class="space-y-2 text-lg items-center"></nav>
+      </footer>
       <script>
          fetch("https://api.rss2json.com/v1/api.json?rss_url=https://adnjoo.substack.com/feed")
            .then(r => r.json())
            .then(data => {
              const posts = data.items; // all
              const container = document.getElementById("substack");
-             posts.forEach(p => {
+             posts.slice(0, 5).forEach(p => {
                container.innerHTML += `
                  <a class="block hover:underline" href="${p.link}" target="_blank">
                    <span class="font-semibold">${p.title}</span>
-                   <span class="text-sm text-neutral-600">${new Date(p.pubDate).toLocaleDateString()}</span>
+                   <span class="text-sm text-neutral-600">${new Date(p.pubDate).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })}</span>
                  </a>`;
              });
            })
