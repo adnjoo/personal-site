@@ -11,26 +11,12 @@ main {
    box-sizing: border-box;
 }
 
-/* Ensure text is visible in light mode */
-html:not(.dark) body {
-   color: #171717 !important;
+/* Text colors */
+body {
+   color: #171717;
 }
-html:not(.dark) h1,
-html:not(.dark) h2,
-html:not(.dark) p,
-html:not(.dark) a,
-html:not(.dark) main {
-   color: #171717 !important;
-}
-html.dark body {
-   color: #fafafa !important;
-}
-html.dark h1,
-html.dark h2,
-html.dark p,
-html.dark a,
-html.dark main {
-   color: #fafafa !important;
+h1, h2, p, a, main {
+   color: #171717;
 }
 
 /* Shuffle Grid Styles */
@@ -93,11 +79,6 @@ html.dark main {
    border: 1px solid rgba(229, 231, 235, 0.5);
    background: rgba(255, 255, 255, 0.05);
    backdrop-filter: blur(10px);
-}
-
-html.dark .grid-card {
-   border-color: rgba(255, 255, 255, 0.1);
-   background: rgba(0, 0, 0, 0.3);
 }
 
 .grid-card-image {

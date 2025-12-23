@@ -1,40 +1,3 @@
-// Dark Mode Toggle
-(function() {
-   const toggle = document.getElementById('dark-mode-toggle');
-   const icon = document.getElementById('dark-mode-icon');
-   const html = document.documentElement;
-   
-   // Check for saved theme preference or default to light mode
-   const getTheme = () => {
-      const saved = localStorage.getItem('theme');
-      if (saved) return saved;
-      // Default to light mode
-      return 'light';
-   };
-   
-   const setTheme = (theme) => {
-      if (theme === 'dark') {
-         html.classList.add('dark');
-         icon.classList.remove('fa-moon');
-         icon.classList.add('fa-sun');
-      } else {
-         html.classList.remove('dark');
-         icon.classList.remove('fa-sun');
-         icon.classList.add('fa-moon');
-      }
-      localStorage.setItem('theme', theme);
-   };
-   
-   // Initialize theme
-   setTheme(getTheme());
-   
-   // Toggle on button click
-   toggle.addEventListener('click', () => {
-      const isDark = html.classList.contains('dark');
-      setTheme(isDark ? 'light' : 'dark');
-   });
-})();
-
 // Dot Shader Background
 (function() {
    const canvas = document.getElementById('dot-shader-bg');
@@ -44,15 +7,11 @@
    if (!ctx) return;
    
    const getBackgroundColor = () => {
-      return document.documentElement.classList.contains('dark') 
-         ? '#171717' 
-         : '#fafafa';
+      return '#fafafa';
    };
    
    const getDotColor = () => {
-      return document.documentElement.classList.contains('dark')
-         ? 'rgba(139, 92, 246, 0.5)'
-         : 'rgba(139, 92, 246, 0.4)';
+      return 'rgba(139, 92, 246, 0.4)';
    };
    
    let time = 0;
@@ -108,15 +67,6 @@
    
    window.addEventListener('resize', () => {
       resizeCanvas();
-   });
-   
-   // Watch for theme changes
-   const observer = new MutationObserver(() => {
-      // Theme changed, redraw will happen on next frame
-   });
-   observer.observe(document.documentElement, {
-      attributes: true,
-      attributeFilter: ['class']
    });
    
    // Cleanup on page unload
@@ -359,15 +309,13 @@
             // Combine all items
             gridItems = [introCard, ...substackItems, ...socialLinks, ...projectLinks];
             
-            // Shuffle and render
-            gridItems = shuffleArray(gridItems);
+            // Render without shuffling
             renderGrid(gridItems);
          })
          .catch(err => {
             console.error('Error loading Substack feed:', err);
             // Fallback: just render intro, social and project links
             gridItems = [introCard, ...socialLinks, ...projectLinks];
-            gridItems = shuffleArray(gridItems);
             renderGrid(gridItems);
          });
    }
@@ -378,17 +326,7 @@
       renderGrid(gridItems);
    });
    
-   // Auto-shuffle every 10 seconds
-   let autoShuffleInterval;
-   function startAutoShuffle() {
-      autoShuffleInterval = setInterval(() => {
-         gridItems = shuffleArray(gridItems);
-         renderGrid(gridItems);
-      }, 10000);
-   }
-   
    // Initialize
    initializeGrid();
-   // startAutoShuffle(); // Auto-shuffle disabled
 })();
 
