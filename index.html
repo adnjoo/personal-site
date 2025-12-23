@@ -9,109 +9,49 @@
          rel="stylesheet"
          href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
          />
+      <link rel="stylesheet" href="./styles.css" />
+      <script>
+         // Initialize theme immediately before page renders
+         (function() {
+            const html = document.documentElement;
+            const saved = localStorage.getItem('theme');
+            // Ensure light mode by default if no preference saved
+            if (!saved) {
+               html.classList.remove('dark');
+               localStorage.setItem('theme', 'light');
+            } else if (saved === 'dark') {
+               html.classList.add('dark');
+            } else {
+               html.classList.remove('dark');
+            }
+         })();
+      </script>
    </head>
    <body
-      class="min-h-screen grid place-items-center bg-neutral-50 text-neutral-900"
+      class="min-h-screen grid place-items-center bg-neutral-50 dark:bg-neutral-900 text-neutral-900 dark:text-neutral-50 relative transition-colors duration-200"
       >
-      <main class="p-8 text-center">
-      <img
-         src="./assets/2025-10-close.jpg"
-         alt="Andrew Njoo avatar"
-         class="w-24 h-24 rounded-full mx-auto mb-4 shadow object-cover border-2 border-indigo-300 shadow-cyan-500/50"
-         />
-      <h1 class="text-3xl font-semibold mb-6">Andrew Njoo</h1>
-      <p class="text-lg mb-8">Hi, I'm Drew 👋. I spend my time building tools, marketing, and seeing what works in tech. Here are my latest projects and thoughts.</p>
-      <nav class="space-y-2 text-lg">
-      <a
-         class="block hover:underline"
-         href="https://stacktosale.com"
-         target="_blank"
-         rel="noopener"
+      <button
+         id="dark-mode-toggle"
+         class="fixed top-4 right-4 z-50 p-3 rounded-full bg-neutral-200 dark:bg-neutral-800 hover:bg-neutral-300 dark:hover:bg-neutral-700 transition-colors duration-200 shadow-lg"
+         aria-label="Toggle dark mode"
          >
-      <i class="fa-solid fa-briefcase text-yellow-500"></i> S2S - Helping smol biz grow with marketing
-      </a>
-      <a
-         class="block hover:underline"
-         href="https://summa.tube"
-         target="_blank"
-         rel="noopener"
-         >
-      <i class="fa-brands fa-youtube text-red-600"></i> SummaTube - AI YouTube Summaries
-      </a>
-      
-      <hr class="my-4 border-neutral-300" />
-      <h2 class="gap-2 text-xl font-semibold my-4">
-         <i class="fa-solid fa-pen-nib text-yellow-700">
-         </i>
-         Latest Substack Blogs
-      </h2>
-      
-      <nav id="substack" class="space-y-2 text-lg items-center"></nav>
-      <footer class="flex flex-row space-x-4 justify-center mt-12">
-      <a
-         class="block hover:underline"
-         href="https://github.com/adnjoo"
-         target="_blank"
-         rel="noopener"
-         >
-      <i class="fa-brands fa-github text-neutral-800 text-2xl"></i>
-      </a>
-      <a
-         class="block hover:underline"
-         href="https://instagram.com/adnjoo"
-         target="_blank"
-         rel="noopener"
-         >
-      <i class="fa-brands fa-instagram text-pink-500 text-2xl"></i>
-      </a>
-      <a
-         class="block hover:underline"
-         href="https://linkedin.com/in/adnjoo"
-         target="_blank"
-         rel="noopener"
-         >
-      <i class="fa-brands fa-linkedin text-blue-700 text-2xl"></i>
-      </a>
-      <a
-         class="block hover:underline"
-         href="https://youtube.com/@drewnjoo"
-         target="_blank"
-         rel="noopener"
-         >
-      <i class="fa-brands fa-youtube text-red-600 text-2xl"></i>
-      </a>
-      <a
-         class="block hover:underline"
-         href="https://open.spotify.com/artist/1351GdPml5Zsm0X4YD3IX7"
-         target="_blank"
-         rel="noopener"
-         >
-      <i class="fa-brands fa-spotify text-green-500 text-2xl"></i>
-      </a>
-      <a
-         class="block hover:underline"
-         href="https://soundcloud.com/adnjoo"
-         target="_blank"
-         rel="noopener"
-         >
-      <i class="fa-brands fa-soundcloud text-orange-500 text-2xl"></i>
-      </a>
-      </footer>
-      <script>
-         fetch("https://api.rss2json.com/v1/api.json?rss_url=https://adnjoo.substack.com/feed")
-           .then(r => r.json())
-           .then(data => {
-             const posts = data.items; // all
-             const container = document.getElementById("substack");
-             posts.slice(0, 5).forEach(p => {
-               container.innerHTML += `
-                 <a class="block hover:underline" href="${p.link}" target="_blank">
-                   <span class="font-semibold">${p.title}</span>
-                   <span class="text-sm text-neutral-600">${new Date(p.pubDate).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })}</span>
-                 </a>`;
-             });
-           })
-           .catch(err => console.error(err));
-      </script>
+         <i id="dark-mode-icon" class="fa-solid fa-moon text-neutral-800 dark:text-neutral-200 text-xl"></i>
+      </button>
+      <canvas id="dot-shader-bg" class="fixed inset-0 w-full h-full pointer-events-none" style="z-index: 0;"></canvas>
+      <main class="relative z-10 min-h-screen py-8">
+         <div class="text-center mb-8">
+            <img
+               src="./assets/2025-10-close.jpg"
+               alt="Andrew Njoo avatar"
+               class="w-24 h-24 rounded-full mx-auto mb-4 shadow object-cover border-2 border-indigo-300 shadow-cyan-500/50"
+               />
+            <h1 class="text-3xl font-semibold mb-8 text-neutral-900 dark:text-neutral-50">Andrew Njoo</h1>
+         </div>
+         <div id="shuffle-grid" class="shuffle-grid"></div>
+         <button id="shuffle-button" class="shuffle-button">
+            <i class="fa-solid fa-shuffle mr-2"></i> Shuffle
+         </button>
+      </main>
+      <script src="./main.js"></script>
    </body>
 </html>

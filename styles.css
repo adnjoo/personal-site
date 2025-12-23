@@ -1,0 +1,238 @@
+/* Prevent horizontal overflow */
+html, body {
+   overflow-x: hidden;
+   width: 100%;
+   max-width: 100vw;
+}
+
+main {
+   width: 100%;
+   max-width: 100vw;
+   box-sizing: border-box;
+}
+
+/* Ensure text is visible in light mode */
+html:not(.dark) body {
+   color: #171717 !important;
+}
+html:not(.dark) h1,
+html:not(.dark) h2,
+html:not(.dark) p,
+html:not(.dark) a,
+html:not(.dark) main {
+   color: #171717 !important;
+}
+html.dark body {
+   color: #fafafa !important;
+}
+html.dark h1,
+html.dark h2,
+html.dark p,
+html.dark a,
+html.dark main {
+   color: #fafafa !important;
+}
+
+/* Shuffle Grid Styles */
+.shuffle-grid {
+   display: grid;
+   grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+   gap: 0.75rem;
+   padding: 2rem;
+   max-width: 1400px;
+   margin: 0 auto;
+   width: 100%;
+   box-sizing: border-box;
+}
+
+.grid-item {
+   position: relative;
+   border-radius: 0.75rem;
+   overflow: hidden;
+   cursor: pointer;
+   transition: all 1.5s cubic-bezier(0.4, 0, 0.2, 1);
+   opacity: 0;
+   transform: scale(0.8);
+   animation: fadeInScale 1.5s ease forwards;
+   aspect-ratio: 1;
+   min-width: 0;
+   width: 100%;
+}
+
+.grid-item[data-id="intro"] {
+   cursor: default;
+}
+
+.grid-item.visible {
+   opacity: 1;
+   transform: scale(1);
+}
+
+@keyframes fadeInScale {
+   to {
+      opacity: 1;
+      transform: scale(1);
+   }
+}
+
+.grid-item:hover {
+   transform: scale(1.05) translateY(-8px);
+   box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+}
+
+.grid-item[data-id="intro"]:hover {
+   transform: scale(1) translateY(0);
+   box-shadow: none;
+}
+
+.grid-card {
+   width: 100%;
+   height: 100%;
+   position: relative;
+   overflow: hidden;
+   border: 1px solid rgba(229, 231, 235, 0.5);
+   background: rgba(255, 255, 255, 0.05);
+   backdrop-filter: blur(10px);
+}
+
+html.dark .grid-card {
+   border-color: rgba(255, 255, 255, 0.1);
+   background: rgba(0, 0, 0, 0.3);
+}
+
+.grid-card-image {
+   width: 100%;
+   height: 100%;
+   object-fit: cover;
+}
+
+.grid-card-overlay {
+   position: absolute;
+   inset: 0;
+   background: linear-gradient(to top, rgba(0, 0, 0, 0.8) 0%, rgba(0, 0, 0, 0.4) 50%, transparent 100%);
+   display: flex;
+   flex-direction: column;
+   justify-content: flex-end;
+   padding: 1.5rem;
+   color: white;
+}
+
+.grid-card-icon {
+   width: 100%;
+   height: 100%;
+   display: flex;
+   flex-direction: column;
+   align-items: center;
+   justify-content: center;
+   padding: 1.5rem;
+   color: white;
+}
+
+.grid-card-intro {
+   width: 100%;
+   height: 100%;
+   display: flex;
+   flex-direction: column;
+   align-items: center;
+   justify-content: center;
+   padding: 1.5rem;
+   color: white;
+}
+
+.grid-card-substack {
+   width: 100%;
+   height: 100%;
+   position: relative;
+   display: flex;
+   flex-direction: column;
+   padding: 1.5rem;
+   color: white;
+}
+
+.grid-card-substack-icon {
+   position: absolute;
+   top: 1rem;
+   left: 1rem;
+   font-size: 1.5rem;
+   opacity: 0.9;
+}
+
+.grid-card-substack-content {
+   margin-top: auto;
+   padding-top: 1rem;
+}
+
+.grid-card-badge {
+   display: inline-block;
+   padding: 0.25rem 0.75rem;
+   border-radius: 9999px;
+   font-size: 0.75rem;
+   font-weight: 600;
+   margin-bottom: 0.5rem;
+   text-transform: capitalize;
+}
+
+.grid-card-title {
+   font-size: 1.125rem;
+   font-weight: 600;
+   margin-bottom: 0.25rem;
+}
+
+.grid-card-description {
+   font-size: 0.875rem;
+   opacity: 0.9;
+   line-height: 1.4;
+}
+
+.shuffle-button {
+   position: fixed;
+   bottom: 2rem;
+   right: 2rem;
+   z-index: 50;
+   padding: 1rem 2rem;
+   background: rgba(139, 92, 246, 0.9);
+   color: white;
+   border: none;
+   border-radius: 0.75rem;
+   font-weight: 600;
+   cursor: pointer;
+   box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+   transition: all 0.3s;
+}
+
+.shuffle-button:hover {
+   background: rgba(139, 92, 246, 1);
+   transform: translateY(-2px);
+   box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.2);
+}
+
+@media (max-width: 768px) {
+   .shuffle-grid {
+      grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+      padding: 1rem;
+      gap: 0.5rem;
+   }
+   
+   .shuffle-button {
+      bottom: 1rem;
+      right: 1rem;
+      padding: 0.75rem 1.5rem;
+      font-size: 0.875rem;
+   }
+}
+
+@media (max-width: 480px) {
+   .shuffle-grid {
+      grid-template-columns: 1fr;
+      padding: 0.75rem;
+      gap: 0.75rem;
+   }
+   
+   .shuffle-button {
+      bottom: 0.75rem;
+      right: 0.75rem;
+      padding: 0.625rem 1.25rem;
+      font-size: 0.8125rem;
+   }
+}
+
