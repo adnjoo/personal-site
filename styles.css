@@ -35,18 +35,44 @@ h1, h2, p, a, main {
    position: relative;
    border-radius: 0.75rem;
    overflow: hidden;
-   cursor: pointer;
-   transition: all 1.5s cubic-bezier(0.4, 0, 0.2, 1);
+   cursor: grab;
+   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
    opacity: 0;
    transform: scale(0.8);
    animation: fadeInScale 1.5s ease forwards;
    aspect-ratio: 1;
    min-width: 0;
    width: 100%;
+   box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 
+               0 2px 4px -1px rgba(0, 0, 0, 0.06),
+               0 0 0 1px rgba(0, 0, 0, 0.05);
+}
+
+.grid-item:active {
+   cursor: grabbing;
 }
 
 .grid-item[data-id="intro"] {
    cursor: default;
+}
+
+.grid-item.dragging {
+   opacity: 0.5;
+   transform: scale(0.95);
+   z-index: 1000;
+   cursor: grabbing;
+   box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25),
+               0 15px 30px -8px rgba(0, 0, 0, 0.15);
+}
+
+.grid-item.drag-over {
+   transform: scale(1.1);
+   border: 2px dashed rgba(139, 92, 246, 0.6);
+   background: rgba(139, 92, 246, 0.1);
+   transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+   box-shadow: 0 15px 30px -5px rgba(139, 92, 246, 0.3),
+               0 8px 16px -4px rgba(139, 92, 246, 0.2),
+               0 0 0 2px rgba(139, 92, 246, 0.4);
 }
 
 .grid-item.visible {
@@ -61,12 +87,15 @@ h1, h2, p, a, main {
    }
 }
 
-.grid-item:hover {
+.grid-item:hover:not(.dragging):not(.drag-over) {
    transform: scale(1.05) translateY(-8px);
-   box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+   box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.15), 
+               0 10px 10px -5px rgba(0, 0, 0, 0.08),
+               0 0 0 1px rgba(0, 0, 0, 0.1),
+               0 0 30px rgba(139, 92, 246, 0.2);
 }
 
-.grid-item[data-id="intro"]:hover {
+.grid-item[data-id="intro"]:hover:not(.dragging):not(.drag-over) {
    transform: scale(1) translateY(0);
    box-shadow: none;
 }
@@ -79,6 +108,8 @@ h1, h2, p, a, main {
    border: 1px solid rgba(229, 231, 235, 0.5);
    background: rgba(255, 255, 255, 0.05);
    backdrop-filter: blur(10px);
+   box-shadow: inset 0 1px 2px rgba(255, 255, 255, 0.1),
+               0 2px 4px rgba(0, 0, 0, 0.05);
 }
 
 .grid-card-image {
@@ -170,11 +201,16 @@ h1, h2, p, a, main {
    bottom: 2rem;
    right: 2rem;
    z-index: 50;
-   padding: 1rem 2rem;
+   padding: 1rem;
+   width: 3.5rem;
+   height: 3.5rem;
+   display: flex;
+   align-items: center;
+   justify-content: center;
    background: rgba(139, 92, 246, 0.9);
    color: white;
    border: none;
-   border-radius: 0.75rem;
+   border-radius: 50%;
    font-weight: 600;
    cursor: pointer;
    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
@@ -197,8 +233,9 @@ h1, h2, p, a, main {
    .shuffle-button {
       bottom: 1rem;
       right: 1rem;
-      padding: 0.75rem 1.5rem;
-      font-size: 0.875rem;
+      width: 3rem;
+      height: 3rem;
+      padding: 0.75rem;
    }
 }
 
@@ -212,8 +249,9 @@ h1, h2, p, a, main {
    .shuffle-button {
       bottom: 0.75rem;
       right: 0.75rem;
-      padding: 0.625rem 1.25rem;
-      font-size: 0.8125rem;
+      width: 2.75rem;
+      height: 2.75rem;
+      padding: 0.625rem;
    }
 }
 

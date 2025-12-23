@@ -133,7 +133,7 @@
       // Intro card is not a link, others are
       if (item.type === 'intro') {
          return `
-            <div class="grid-item" data-id="${item.id}">
+            <div class="grid-item" data-id="${item.id}" draggable="true">
                <div class="grid-card">
                   ${content}
                </div>
@@ -142,7 +142,7 @@
       }
       
       return `
-         <a href="${item.link}" target="_blank" rel="noopener" class="grid-item" data-id="${item.id}">
+         <a href="${item.link}" target="_blank" rel="noopener" class="grid-item" data-id="${item.id}" draggable="true">
             <div class="grid-card">
                ${content}
             </div>
@@ -176,7 +176,93 @@
                item.classList.add('visible');
             }, index * 150);
          });
+         
+         // Setup drag and drop after items are rendered
+         setupDragAndDrop();
       }, 10);
+   }
+   
+   // Drag and drop functionality
+   let draggedElement = null;
+   let draggedIndex = null;
+   let dragStarted = false;
+   
+   function setupDragAndDrop() {
+      const items = gridContainer.querySelectorAll('.grid-item');
+      
+      items.forEach((item, index) => {
+         item.addEventListener('dragstart', (e) => {
+            draggedElement = item;
+            draggedIndex = index;
+            dragStarted = true;
+            item.classList.add('dragging');
+            e.dataTransfer.effectAllowed = 'move';
+            e.dataTransfer.setData('text/html', item.innerHTML);
+            
+            // Prevent link navigation during drag
+            if (item.tagName === 'A') {
+               const originalHref = item.href;
+               item.addEventListener('click', function preventClick(e) {
+                  if (dragStarted) {
+                     e.preventDefault();
+                     e.stopPropagation();
+                     item.removeEventListener('click', preventClick);
+                  }
+               }, { once: true });
+            }
+         });
+         
+         item.addEventListener('dragend', (e) => {
+            item.classList.remove('dragging');
+            item.classList.remove('drag-over');
+            
+            // Remove drag-over class from all items
+            items.forEach(i => i.classList.remove('drag-over'));
+            
+            // Reset flag after a short delay
+            setTimeout(() => {
+               dragStarted = false;
+            }, 100);
+         });
+         
+         item.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            e.dataTransfer.dropEffect = 'move';
+            
+            if (draggedElement && draggedElement !== item) {
+               item.classList.add('drag-over');
+            }
+         });
+         
+         item.addEventListener('dragleave', (e) => {
+            item.classList.remove('drag-over');
+         });
+         
+         item.addEventListener('drop', (e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            
+            if (draggedElement && draggedElement !== item) {
+               const dropIndex = Array.from(items).indexOf(item);
+               
+               // Swap the two items directly instead of reordering
+               const newItems = [...gridItems];
+               const draggedItem = newItems[draggedIndex];
+               const dropItem = newItems[dropIndex];
+               
+               // Direct swap
+               newItems[draggedIndex] = dropItem;
+               newItems[dropIndex] = draggedItem;
+               
+               gridItems = newItems;
+               
+               // Re-render grid smoothly
+               renderGrid(gridItems);
+            }
+            
+            item.classList.remove('drag-over');
+         });
+      });
    }
    
    // Initialize grid items
