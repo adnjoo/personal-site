@@ -97,49 +97,46 @@
       let content = '';
       
       if (item.type === 'intro') {
-         // Intro card: title and description with gradient background
          content = `
-            <div class="grid-card-intro" style="background: linear-gradient(135deg, ${item.color || '#6366f1'}, ${item.color2 || '#8b5cf6'})">
-               <h3 class="grid-card-title text-center mb-3">${item.title}</h3>
-               ${item.description ? `<p class="grid-card-description text-center">${item.description}</p>` : ''}
+            <div class="w-full h-full flex flex-col items-center justify-center p-4 text-white bg-gradient-to-br" style="background: linear-gradient(135deg, ${item.color || '#6366f1'}, ${item.color2 || '#8b5cf6'})">
             </div>
          `;
       } else if (item.type === 'substack' && item.image) {
-         // Substack posts: image preview with title only, no badge or description
          content = `
-            <img src="${item.image}" alt="${item.title}" class="grid-card-image" onerror="this.style.display='none'; this.parentElement.querySelector('.grid-card-overlay').style.background='linear-gradient(135deg, #ff6719, #ff8533)';" />
-            <div class="grid-card-overlay">
-               <h3 class="grid-card-title">${item.title}</h3>
-            </div>
+            <img src="${item.image}" alt="${item.title}" class="w-full h-full object-cover" onerror="this.style.display='none'; this.parentElement.querySelector('.absolute').style.background='linear-gradient(135deg, #ff6719, #ff8533)';" />
          `;
       } else if (item.image) {
          content = `
-            <img src="${item.image}" alt="${item.title}" class="grid-card-image" onerror="this.style.display='none'; this.parentElement.querySelector('.grid-card-overlay').style.background='linear-gradient(135deg, ${item.color || '#8b5cf6'}, ${item.color2 || '#6366f1'})';" />
-            <div class="grid-card-overlay">
-               <span class="grid-card-badge" style="background: ${item.badgeColor || 'rgba(139, 92, 246, 0.8)'}">${item.type}</span>
-               <h3 class="grid-card-title">${item.title}</h3>
-               ${item.description ? `<p class="grid-card-description">${item.description}</p>` : ''}
+            <img src="${item.image}" alt="${item.title}" class="w-full h-full object-cover" onerror="this.style.display='none'; this.parentElement.querySelector('.absolute').style.background='linear-gradient(135deg, ${item.color || '#8b5cf6'}, ${item.color2 || '#6366f1'})';" />
+            <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent flex flex-col justify-end p-4 text-white">
+               <span class="inline-block px-2.5 py-1 rounded-full text-[0.625rem] font-semibold mb-1.5 capitalize" style="background: ${item.badgeColor || 'rgba(139, 92, 246, 0.8)'}">${item.type}</span>
+               <h3 class="text-sm font-semibold mb-1">${item.title}</h3>
+               ${item.description ? `<p class="text-xs opacity-90 leading-snug">${item.description}</p>` : ''}
             </div>
          `;
       } else {
          const showTitle = item.type !== 'social';
          const iconHTML = item.iconIsEmoji 
-            ? `<span class="text-4xl mb-3" style="font-size: 2rem; line-height: 1;">${item.icon}</span>`
+            ? `<span class="mb-3" style="font-size: 2rem; line-height: 1;">${item.icon}</span>`
             : `<i class="${item.icon} text-3xl mb-3"></i>`;
          content = `
-            <div class="grid-card-icon" style="background: linear-gradient(135deg, ${item.color || '#8b5cf6'}, ${item.color2 || '#6366f1'})">
+            <div class="w-full h-full flex flex-col items-center justify-center p-4 text-white bg-gradient-to-br" style="background: linear-gradient(135deg, ${item.color || '#8b5cf6'}, ${item.color2 || '#6366f1'})">
                ${iconHTML}
-               ${showTitle ? `<h3 class="grid-card-title text-center">${item.title}</h3>` : ''}
-               ${item.description ? `<p class="grid-card-description text-center mt-2">${item.description}</p>` : ''}
+               ${showTitle ? `<h3 class="text-sm font-semibold mb-1 text-center">${item.title}</h3>` : ''}
             </div>
          `;
       }
       
+      const baseClasses = 'grid-item relative rounded-xl overflow-hidden transition-all duration-300 ease-in-out aspect-square w-full min-w-0 opacity-0 scale-[0.8] shadow-[0_4px_6px_-1px_rgba(0,0,0,0.1),0_2px_4px_-1px_rgba(0,0,0,0.06),0_0_0_1px_rgba(0,0,0,0.05)]';
+      const introClasses = `${baseClasses} cursor-default pointer-events-none`;
+      const itemClasses = `${baseClasses} cursor-grab active:cursor-grabbing hover:scale-105 hover:-translate-y-2 hover:shadow-[0_20px_25px_-5px_rgba(0,0,0,0.15),0_10px_10px_-5px_rgba(0,0,0,0.08),0_0_0_1px_rgba(0,0,0,0.1),0_0_30px_rgba(139,92,246,0.2)]`;
+      const cardClasses = 'w-full h-full relative overflow-hidden border border-gray-200/50 bg-white/5 backdrop-blur-[10px] shadow-[inset_0_1px_2px_rgba(255,255,255,0.1),0_2px_4px_rgba(0,0,0,0.05)]';
+      
       if (item.type === 'intro') {
-         return `<div class="grid-item" data-id="${item.id}"><div class="grid-card">${content}</div></div>`;
+         return `<div class="${introClasses}" data-id="${item.id}"><div class="${cardClasses}">${content}</div></div>`;
       }
       
-      return `<a href="${item.link}" target="_blank" rel="noopener" class="grid-item" data-id="${item.id}"><div class="grid-card">${content}</div></a>`;
+      return `<a href="${item.link}" target="_blank" rel="noopener" class="${itemClasses}" data-id="${item.id}"><div class="${cardClasses}">${content}</div></a>`;
    };
    
    const shuffleArray = (array) => {
@@ -163,7 +160,7 @@
          const items = gridContainer.querySelectorAll('.grid-item');
          items.forEach((item, index) => {
             setTimeout(() => {
-               item.classList.add('visible');
+               item.classList.add('opacity-100', 'scale-100');
             }, index * 150);
          });
          
@@ -172,44 +169,32 @@
       }, 10);
    };
    
-   let draggedIndex = null;
+   let sortableInstance = null;
    
    const setupDragAndDrop = () => {
-      const items = gridContainer.querySelectorAll('.grid-item');
+      if (sortableInstance) sortableInstance.destroy();
       
-      items.forEach((item, index) => {
-         item.draggable = item.dataset.id !== 'intro';
-         
-         item.addEventListener('dragstart', (e) => {
-            if (item.dataset.id === 'intro') {
-               e.preventDefault();
-               return;
+      sortableInstance = new Sortable(gridContainer, {
+         animation: 150,
+         filter: '[data-id="intro"]',
+         draggable: '.grid-item:not([data-id="intro"])',
+         ghostClass: 'opacity-50 scale-95 z-[1000] cursor-grabbing shadow-[0_25px_50px_-12px_rgba(0,0,0,0.25),0_15px_30px_-8px_rgba(0,0,0,0.15)]',
+         chosenClass: 'scale-110 border-2 border-dashed border-purple-500/60 bg-purple-500/10 transition-all duration-200 shadow-[0_15px_30px_-5px_rgba(139,92,246,0.3),0_8px_16px_-4px_rgba(139,92,246,0.2),0_0_0_2px_rgba(139,92,246,0.4)]',
+         dragClass: 'opacity-50 scale-95 z-[1000] cursor-grabbing',
+         onEnd: (evt) => {
+            const oldIndex = evt.oldIndex;
+            const newIndex = evt.newIndex;
+            if (oldIndex !== null && newIndex !== null && oldIndex !== newIndex) {
+               const draggedItem = gridItems[oldIndex];
+               const targetItem = gridItems[newIndex];
+               if (draggedItem?.id !== 'intro' && targetItem?.id !== 'intro') {
+                  [gridItems[oldIndex], gridItems[newIndex]] = [gridItems[newIndex], gridItems[oldIndex]];
+                  renderGrid(gridItems);
+               } else {
+                  sortableInstance.sort(gridItems.map((_, i) => i));
+               }
             }
-            draggedIndex = index;
-            item.classList.add('dragging');
-            e.dataTransfer.effectAllowed = 'move';
-         });
-         
-         item.addEventListener('dragend', () => {
-            items.forEach(i => i.classList.remove('dragging', 'drag-over'));
-         });
-         
-         item.addEventListener('dragover', (e) => {
-            e.preventDefault();
-            if (item.dataset.id !== 'intro') item.classList.add('drag-over');
-         });
-         
-         item.addEventListener('dragleave', () => item.classList.remove('drag-over'));
-         
-         item.addEventListener('drop', (e) => {
-            e.preventDefault();
-            const dropIndex = Array.from(items).indexOf(item);
-            if (draggedIndex !== null && draggedIndex !== dropIndex && item.dataset.id !== 'intro') {
-               [gridItems[draggedIndex], gridItems[dropIndex]] = [gridItems[dropIndex], gridItems[draggedIndex]];
-               renderGrid(gridItems);
-            }
-            item.classList.remove('drag-over');
-         });
+         }
       });
    };
    
