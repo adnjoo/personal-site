@@ -6,13 +6,8 @@
    const ctx = canvas.getContext('2d');
    if (!ctx) return;
    
-   const getBackgroundColor = () => {
-      return '#fafafa';
-   };
-   
-   const getDotColor = () => {
-      return 'rgba(139, 92, 246, 0.4)';
-   };
+   const backgroundColor = '#fafafa';
+   const dotColor = 'rgba(139, 92, 246, 0.4)';
    
    let time = 0;
    let animationFrameId;
@@ -23,9 +18,6 @@
    };
    
    const drawDots = () => {
-      const backgroundColor = getBackgroundColor();
-      const dotColor = getDotColor();
-      
       ctx.fillStyle = backgroundColor;
       ctx.fillRect(0, 0, canvas.width, canvas.height);
       
@@ -83,15 +75,25 @@
    const shuffleButton = document.getElementById('shuffle-button');
    let gridItems = [];
    
-   // Extract image from HTML content
-   function extractImageFromContent(content) {
-      if (!content) return null;
-      const imgMatch = content.match(/<img[^>]+src="([^"]+)"/i);
-      return imgMatch ? imgMatch[1] : null;
-   }
+   const extractImageFromContent = (content) => content?.match(/<img[^>]+src="([^"]+)"/i)?.[1] || null;
    
-   // Create grid item HTML
-   function createGridItem(item, index) {
+   const createSubstackItem = (post, index) => {
+      const image = extractImageFromContent(post.content) || extractImageFromContent(post.description) || `https://picsum.photos/400/300?random=${index}`;
+      return {
+         id: `substack-${index}`,
+         type: 'substack',
+         title: post.title,
+         image,
+         link: post.link,
+         badgeColor: 'rgba(249, 115, 22, 0.8)',
+      };
+   };
+   
+   const fetchSubstackPosts = () => fetch("https://api.rss2json.com/v1/api.json?rss_url=https://adnjoo.substack.com/feed")
+      .then(r => r.json())
+      .then(data => (data.items || []).slice(0, 6).map(createSubstackItem));
+   
+   const createGridItem = (item) => {
       let content = '';
       
       if (item.type === 'intro') {
@@ -133,38 +135,23 @@
          `;
       }
       
-      // Intro card is not a link, others are
       if (item.type === 'intro') {
-         return `
-            <div class="grid-item" data-id="${item.id}" draggable="true">
-               <div class="grid-card">
-                  ${content}
-               </div>
-            </div>
-         `;
+         return `<div class="grid-item" data-id="${item.id}"><div class="grid-card">${content}</div></div>`;
       }
       
-      return `
-         <a href="${item.link}" target="_blank" rel="noopener" class="grid-item" data-id="${item.id}" draggable="true">
-            <div class="grid-card">
-               ${content}
-            </div>
-         </a>
-      `;
-   }
+      return `<a href="${item.link}" target="_blank" rel="noopener" class="grid-item" data-id="${item.id}"><div class="grid-card">${content}</div></a>`;
+   };
    
-   // Shuffle array
-   function shuffleArray(array) {
+   const shuffleArray = (array) => {
       const newArray = [...array];
       for (let i = newArray.length - 1; i > 0; i--) {
          const j = Math.floor(Math.random() * (i + 1));
          [newArray[i], newArray[j]] = [newArray[j], newArray[i]];
       }
       return newArray;
-   }
+   };
    
-   // Render grid
-   function renderGrid(items) {
+   const renderGrid = (items) => {
       gridContainer.innerHTML = '';
       items.forEach((item, index) => {
          const itemHTML = createGridItem(item, index);
@@ -183,93 +170,50 @@
          // Setup drag and drop after items are rendered
          setupDragAndDrop();
       }, 10);
-   }
+   };
    
-   // Drag and drop functionality
-   let draggedElement = null;
    let draggedIndex = null;
-   let dragStarted = false;
    
-   function setupDragAndDrop() {
+   const setupDragAndDrop = () => {
       const items = gridContainer.querySelectorAll('.grid-item');
       
       items.forEach((item, index) => {
+         item.draggable = item.dataset.id !== 'intro';
+         
          item.addEventListener('dragstart', (e) => {
-            draggedElement = item;
+            if (item.dataset.id === 'intro') {
+               e.preventDefault();
+               return;
+            }
             draggedIndex = index;
-            dragStarted = true;
             item.classList.add('dragging');
             e.dataTransfer.effectAllowed = 'move';
-            e.dataTransfer.setData('text/html', item.innerHTML);
-            
-            // Prevent link navigation during drag
-            if (item.tagName === 'A') {
-               const originalHref = item.href;
-               item.addEventListener('click', function preventClick(e) {
-                  if (dragStarted) {
-                     e.preventDefault();
-                     e.stopPropagation();
-                     item.removeEventListener('click', preventClick);
-                  }
-               }, { once: true });
-            }
          });
          
-         item.addEventListener('dragend', (e) => {
-            item.classList.remove('dragging');
-            item.classList.remove('drag-over');
-            
-            // Remove drag-over class from all items
-            items.forEach(i => i.classList.remove('drag-over'));
-            
-            // Reset flag after a short delay
-            setTimeout(() => {
-               dragStarted = false;
-            }, 100);
+         item.addEventListener('dragend', () => {
+            items.forEach(i => i.classList.remove('dragging', 'drag-over'));
          });
          
          item.addEventListener('dragover', (e) => {
             e.preventDefault();
-            e.dataTransfer.dropEffect = 'move';
-            
-            if (draggedElement && draggedElement !== item) {
-               item.classList.add('drag-over');
-            }
+            if (item.dataset.id !== 'intro') item.classList.add('drag-over');
          });
          
-         item.addEventListener('dragleave', (e) => {
-            item.classList.remove('drag-over');
-         });
+         item.addEventListener('dragleave', () => item.classList.remove('drag-over'));
          
          item.addEventListener('drop', (e) => {
             e.preventDefault();
-            e.stopPropagation();
-            
-            if (draggedElement && draggedElement !== item) {
-               const dropIndex = Array.from(items).indexOf(item);
-               
-               // Swap the two items directly instead of reordering
-               const newItems = [...gridItems];
-               const draggedItem = newItems[draggedIndex];
-               const dropItem = newItems[dropIndex];
-               
-               // Direct swap
-               newItems[draggedIndex] = dropItem;
-               newItems[dropIndex] = draggedItem;
-               
-               gridItems = newItems;
-               
-               // Re-render grid smoothly
+            const dropIndex = Array.from(items).indexOf(item);
+            if (draggedIndex !== null && draggedIndex !== dropIndex && item.dataset.id !== 'intro') {
+               [gridItems[draggedIndex], gridItems[dropIndex]] = [gridItems[dropIndex], gridItems[draggedIndex]];
                renderGrid(gridItems);
             }
-            
             item.classList.remove('drag-over');
          });
       });
-   }
+   };
    
-   // Initialize grid items
-   function initializeGrid() {
+   const initializeGrid = () => {
       // Intro card
       const introCard = {
          id: 'intro',
@@ -347,82 +291,20 @@
          },
       ];
       
-      // Load project links from JSON file
-      fetch('./projects.json')
-         .then(r => r.json())
-         .then(projectLinks => {
-            // Fetch Substack posts
-            fetch("https://api.rss2json.com/v1/api.json?rss_url=https://adnjoo.substack.com/feed")
-               .then(r => r.json())
-               .then(data => {
-                  const posts = data.items || [];
-                  const substackItems = posts.slice(0, 6).map((post, index) => {
-                     let image = extractImageFromContent(post.content) || 
-                                extractImageFromContent(post.description);
-                     
-                     // Use placeholder if no image found
-                     if (!image) {
-                        image = `https://picsum.photos/400/300?random=${index}`;
-                     }
-                     
-                     return {
-                        id: `substack-${index}`,
-                        type: 'substack',
-                        title: post.title,
-                        image: image,
-                        link: post.link,
-                        badgeColor: 'rgba(249, 115, 22, 0.8)',
-                     };
-                  });
-                  
-                  // Combine all items
-                  gridItems = [introCard, ...substackItems, ...socialLinks, ...projectLinks];
-                  
-                  // Render without shuffling
-                  renderGrid(gridItems);
-               })
-               .catch(err => {
-                  console.error('Error loading Substack feed:', err);
-                  // Fallback: just render intro, social and project links
-                  gridItems = [introCard, ...socialLinks, ...projectLinks];
-                  renderGrid(gridItems);
-               });
-         })
-         .catch(err => {
-            console.error('Error loading projects:', err);
-            // Fallback: render without project links
-            fetch("https://api.rss2json.com/v1/api.json?rss_url=https://adnjoo.substack.com/feed")
-               .then(r => r.json())
-               .then(data => {
-                  const posts = data.items || [];
-                  const substackItems = posts.slice(0, 6).map((post, index) => {
-                     let image = extractImageFromContent(post.content) || 
-                                extractImageFromContent(post.description);
-                     
-                     if (!image) {
-                        image = `https://picsum.photos/400/300?random=${index}`;
-                     }
-                     
-                     return {
-                        id: `substack-${index}`,
-                        type: 'substack',
-                        title: post.title,
-                        image: image,
-                        link: post.link,
-                        badgeColor: 'rgba(249, 115, 22, 0.8)',
-                     };
-                  });
-                  
-                  gridItems = [introCard, ...substackItems, ...socialLinks];
-                  renderGrid(gridItems);
-               })
-               .catch(err => {
-                  console.error('Error loading Substack feed:', err);
-                  gridItems = [introCard, ...socialLinks];
-                  renderGrid(gridItems);
-               });
-         });
-   }
+      const renderItems = (substackItems = [], projectLinks = []) => {
+         gridItems = [introCard, ...substackItems, ...socialLinks, ...projectLinks];
+         renderGrid(gridItems);
+      };
+      
+      Promise.all([
+         fetch('./projects.json').then(r => r.json()).catch(() => []),
+         fetchSubstackPosts().catch(() => [])
+      ]).then(([projectLinks, substackItems]) => {
+         renderItems(substackItems, projectLinks);
+      }).catch(() => {
+         renderItems();
+      });
+   };
    
    // Shuffle button handler
    shuffleButton.addEventListener('click', () => {
