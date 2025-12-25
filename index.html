@@ -5,6 +5,7 @@
       <meta name="viewport" content="width=device-width,initial-scale=1" />
       <title>Andrew Njoo</title>
       <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+      <script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.0/Sortable.min.js"></script>
       <link
          rel="stylesheet"
          href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
@@ -12,10 +13,10 @@
       <link rel="stylesheet" href="./styles.css" />
    </head>
    <body
-      class="min-h-screen grid place-items-center bg-neutral-50 text-neutral-900 relative"
+      class="min-h-screen grid place-items-center bg-neutral-50 text-neutral-900 relative overflow-x-hidden max-w-[100vw]"
       >
-      <canvas id="dot-shader-bg" class="fixed inset-0 w-full h-full pointer-events-none" style="z-index: 0;"></canvas>
-      <main class="relative z-10 min-h-screen py-8">
+      <canvas id="dot-shader-bg" class="fixed inset-0 w-full h-full pointer-events-none animate-pulse" style="z-index: 0;"></canvas>
+      <main class="relative z-10 min-h-screen py-8 w-full max-w-[100vw] box-border">
          <div class="text-center mb-8">
             <img
                src="./assets/2025-10-close.jpg"
@@ -24,8 +25,8 @@
                />
             <h1 class="text-3xl font-semibold mb-8 text-neutral-900">Andrew Njoo</h1>
          </div>
-         <div id="shuffle-grid" class="shuffle-grid"></div>
-         <button id="shuffle-button" class="shuffle-button" aria-label="Shuffle grid">
+         <div id="shuffle-grid" class="grid grid-cols-[repeat(auto-fill,minmax(140px,1fr))] md:grid-cols-[repeat(auto-fill,minmax(110px,1fr))] sm:grid-cols-1 gap-3 md:gap-2 sm:gap-3 p-8 md:p-4 sm:p-3 max-w-[1400px] mx-auto w-full box-border"></div>
+         <button id="shuffle-button" class="fixed bottom-8 right-8 md:bottom-4 md:right-4 md:w-12 md:h-12 md:p-3 sm:bottom-3 sm:right-3 sm:w-11 sm:h-11 sm:p-2.5 z-50 p-4 w-14 h-14 flex items-center justify-center bg-purple-600/90 hover:bg-purple-600 text-white rounded-full font-semibold cursor-pointer shadow-lg hover:shadow-xl hover:-translate-y-0.5 transition-all duration-300" aria-label="Shuffle grid">
             <i class="fa-solid fa-shuffle"></i>
          </button>
       </main>
