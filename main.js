@@ -6,13 +6,8 @@
    const ctx = canvas.getContext('2d');
    if (!ctx) return;
    
-   const getBackgroundColor = () => {
-      return '#fafafa';
-   };
-   
-   const getDotColor = () => {
-      return 'rgba(139, 92, 246, 0.4)';
-   };
+   const backgroundColor = '#fafafa';
+   const dotColor = 'rgba(139, 92, 246, 0.4)';
    
    let time = 0;
    let animationFrameId;
@@ -23,9 +18,6 @@
    };
    
    const drawDots = () => {
-      const backgroundColor = getBackgroundColor();
-      const dotColor = getDotColor();
-      
       ctx.fillStyle = backgroundColor;
       ctx.fillRect(0, 0, canvas.width, canvas.height);
       
@@ -83,88 +75,80 @@
    const shuffleButton = document.getElementById('shuffle-button');
    let gridItems = [];
    
-   // Extract image from HTML content
-   function extractImageFromContent(content) {
-      if (!content) return null;
-      const imgMatch = content.match(/<img[^>]+src="([^"]+)"/i);
-      return imgMatch ? imgMatch[1] : null;
-   }
+   const extractImageFromContent = (content) => content?.match(/<img[^>]+src="([^"]+)"/i)?.[1] || null;
    
-   // Create grid item HTML
-   function createGridItem(item, index) {
+   const createSubstackItem = (post, index) => {
+      const image = extractImageFromContent(post.content) || extractImageFromContent(post.description) || `https://picsum.photos/400/300?random=${index}`;
+      return {
+         id: `substack-${index}`,
+         type: 'substack',
+         title: post.title,
+         image,
+         link: post.link,
+         badgeColor: 'rgba(249, 115, 22, 0.8)',
+      };
+   };
+   
+   const fetchSubstackPosts = () => fetch("https://api.rss2json.com/v1/api.json?rss_url=https://adnjoo.substack.com/feed")
+      .then(r => r.json())
+      .then(data => (data.items || []).slice(0, 6).map(createSubstackItem));
+   
+   const createGridItem = (item) => {
       let content = '';
       
       if (item.type === 'intro') {
-         // Intro card: title and description with gradient background
          content = `
-            <div class="grid-card-intro" style="background: linear-gradient(135deg, ${item.color || '#6366f1'}, ${item.color2 || '#8b5cf6'})">
-               <h3 class="grid-card-title text-center mb-3">${item.title}</h3>
-               ${item.description ? `<p class="grid-card-description text-center">${item.description}</p>` : ''}
+            <div class="w-full h-full flex flex-col items-center justify-center p-4 text-white bg-gradient-to-br" style="background: linear-gradient(135deg, ${item.color || '#6366f1'}, ${item.color2 || '#8b5cf6'})">
             </div>
          `;
       } else if (item.type === 'substack' && item.image) {
-         // Substack posts: image preview with title only, no badge or description
          content = `
-            <img src="${item.image}" alt="${item.title}" class="grid-card-image" onerror="this.style.display='none'; this.parentElement.querySelector('.grid-card-overlay').style.background='linear-gradient(135deg, #ff6719, #ff8533)';" />
-            <div class="grid-card-overlay">
-               <h3 class="grid-card-title">${item.title}</h3>
-            </div>
+            <img src="${item.image}" alt="${item.title}" class="w-full h-full object-cover" onerror="this.style.display='none'; this.parentElement.querySelector('.absolute').style.background='linear-gradient(135deg, #ff6719, #ff8533)';" />
          `;
       } else if (item.image) {
          content = `
-            <img src="${item.image}" alt="${item.title}" class="grid-card-image" onerror="this.style.display='none'; this.parentElement.querySelector('.grid-card-overlay').style.background='linear-gradient(135deg, ${item.color || '#8b5cf6'}, ${item.color2 || '#6366f1'})';" />
-            <div class="grid-card-overlay">
-               <span class="grid-card-badge" style="background: ${item.badgeColor || 'rgba(139, 92, 246, 0.8)'}">${item.type}</span>
-               <h3 class="grid-card-title">${item.title}</h3>
-               ${item.description ? `<p class="grid-card-description">${item.description}</p>` : ''}
+            <img src="${item.image}" alt="${item.title}" class="w-full h-full object-cover" onerror="this.style.display='none'; this.parentElement.querySelector('.absolute').style.background='linear-gradient(135deg, ${item.color || '#8b5cf6'}, ${item.color2 || '#6366f1'})';" />
+            <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent flex flex-col justify-end p-4 text-white">
+               <span class="inline-block px-2.5 py-1 rounded-full text-[0.625rem] font-semibold mb-1.5 capitalize" style="background: ${item.badgeColor || 'rgba(139, 92, 246, 0.8)'}">${item.type}</span>
+               <h3 class="text-sm font-semibold mb-1">${item.title}</h3>
+               ${item.description ? `<p class="text-xs opacity-90 leading-snug">${item.description}</p>` : ''}
             </div>
          `;
       } else {
          const showTitle = item.type !== 'social';
          const iconHTML = item.iconIsEmoji 
-            ? `<span class="text-4xl mb-3" style="font-size: 2rem; line-height: 1;">${item.icon}</span>`
+            ? `<span class="mb-3" style="font-size: 2rem; line-height: 1;">${item.icon}</span>`
             : `<i class="${item.icon} text-3xl mb-3"></i>`;
          content = `
-            <div class="grid-card-icon" style="background: linear-gradient(135deg, ${item.color || '#8b5cf6'}, ${item.color2 || '#6366f1'})">
+            <div class="w-full h-full flex flex-col items-center justify-center p-4 text-white bg-gradient-to-br" style="background: linear-gradient(135deg, ${item.color || '#8b5cf6'}, ${item.color2 || '#6366f1'})">
                ${iconHTML}
-               ${showTitle ? `<h3 class="grid-card-title text-center">${item.title}</h3>` : ''}
-               ${item.description ? `<p class="grid-card-description text-center mt-2">${item.description}</p>` : ''}
+               ${showTitle ? `<h3 class="text-sm font-semibold mb-1 text-center">${item.title}</h3>` : ''}
             </div>
          `;
       }
       
-      // Intro card is not a link, others are
+      const baseClasses = 'grid-item relative rounded-xl overflow-hidden transition-all duration-300 ease-in-out aspect-square w-full min-w-0 opacity-0 scale-[0.8] shadow-[0_4px_6px_-1px_rgba(0,0,0,0.1),0_2px_4px_-1px_rgba(0,0,0,0.06),0_0_0_1px_rgba(0,0,0,0.05)]';
+      const introClasses = `${baseClasses} cursor-default pointer-events-none`;
+      const itemClasses = `${baseClasses} cursor-grab active:cursor-grabbing hover:scale-105 hover:-translate-y-2 hover:shadow-[0_20px_25px_-5px_rgba(0,0,0,0.15),0_10px_10px_-5px_rgba(0,0,0,0.08),0_0_0_1px_rgba(0,0,0,0.1),0_0_30px_rgba(139,92,246,0.2)]`;
+      const cardClasses = 'w-full h-full relative overflow-hidden border border-gray-200/50 bg-white/5 backdrop-blur-[10px] shadow-[inset_0_1px_2px_rgba(255,255,255,0.1),0_2px_4px_rgba(0,0,0,0.05)]';
+      
       if (item.type === 'intro') {
-         return `
-            <div class="grid-item" data-id="${item.id}" draggable="true">
-               <div class="grid-card">
-                  ${content}
-               </div>
-            </div>
-         `;
+         return `<div class="${introClasses}" data-id="${item.id}"><div class="${cardClasses}">${content}</div></div>`;
       }
       
-      return `
-         <a href="${item.link}" target="_blank" rel="noopener" class="grid-item" data-id="${item.id}" draggable="true">
-            <div class="grid-card">
-               ${content}
-            </div>
-         </a>
-      `;
-   }
+      return `<a href="${item.link}" target="_blank" rel="noopener" class="${itemClasses}" data-id="${item.id}"><div class="${cardClasses}">${content}</div></a>`;
+   };
    
-   // Shuffle array
-   function shuffleArray(array) {
+   const shuffleArray = (array) => {
       const newArray = [...array];
       for (let i = newArray.length - 1; i > 0; i--) {
          const j = Math.floor(Math.random() * (i + 1));
          [newArray[i], newArray[j]] = [newArray[j], newArray[i]];
       }
       return newArray;
-   }
+   };
    
-   // Render grid
-   function renderGrid(items) {
+   const renderGrid = (items) => {
       gridContainer.innerHTML = '';
       items.forEach((item, index) => {
          const itemHTML = createGridItem(item, index);
@@ -176,100 +160,45 @@
          const items = gridContainer.querySelectorAll('.grid-item');
          items.forEach((item, index) => {
             setTimeout(() => {
-               item.classList.add('visible');
+               item.classList.add('opacity-100', 'scale-100');
             }, index * 150);
          });
          
          // Setup drag and drop after items are rendered
          setupDragAndDrop();
       }, 10);
-   }
+   };
    
-   // Drag and drop functionality
-   let draggedElement = null;
-   let draggedIndex = null;
-   let dragStarted = false;
+   let sortableInstance = null;
    
-   function setupDragAndDrop() {
-      const items = gridContainer.querySelectorAll('.grid-item');
+   const setupDragAndDrop = () => {
+      if (sortableInstance) sortableInstance.destroy();
       
-      items.forEach((item, index) => {
-         item.addEventListener('dragstart', (e) => {
-            draggedElement = item;
-            draggedIndex = index;
-            dragStarted = true;
-            item.classList.add('dragging');
-            e.dataTransfer.effectAllowed = 'move';
-            e.dataTransfer.setData('text/html', item.innerHTML);
-            
-            // Prevent link navigation during drag
-            if (item.tagName === 'A') {
-               const originalHref = item.href;
-               item.addEventListener('click', function preventClick(e) {
-                  if (dragStarted) {
-                     e.preventDefault();
-                     e.stopPropagation();
-                     item.removeEventListener('click', preventClick);
-                  }
-               }, { once: true });
+      sortableInstance = new Sortable(gridContainer, {
+         animation: 150,
+         filter: '[data-id="intro"]',
+         draggable: '.grid-item:not([data-id="intro"])',
+         ghostClass: 'opacity-50 scale-95 z-[1000] cursor-grabbing shadow-[0_25px_50px_-12px_rgba(0,0,0,0.25),0_15px_30px_-8px_rgba(0,0,0,0.15)]',
+         chosenClass: 'scale-110 border-2 border-dashed border-purple-500/60 bg-purple-500/10 transition-all duration-200 shadow-[0_15px_30px_-5px_rgba(139,92,246,0.3),0_8px_16px_-4px_rgba(139,92,246,0.2),0_0_0_2px_rgba(139,92,246,0.4)]',
+         dragClass: 'opacity-50 scale-95 z-[1000] cursor-grabbing',
+         onEnd: (evt) => {
+            const oldIndex = evt.oldIndex;
+            const newIndex = evt.newIndex;
+            if (oldIndex !== null && newIndex !== null && oldIndex !== newIndex) {
+               const draggedItem = gridItems[oldIndex];
+               const targetItem = gridItems[newIndex];
+               if (draggedItem?.id !== 'intro' && targetItem?.id !== 'intro') {
+                  [gridItems[oldIndex], gridItems[newIndex]] = [gridItems[newIndex], gridItems[oldIndex]];
+                  renderGrid(gridItems);
+               } else {
+                  sortableInstance.sort(gridItems.map((_, i) => i));
+               }
             }
-         });
-         
-         item.addEventListener('dragend', (e) => {
-            item.classList.remove('dragging');
-            item.classList.remove('drag-over');
-            
-            // Remove drag-over class from all items
-            items.forEach(i => i.classList.remove('drag-over'));
-            
-            // Reset flag after a short delay
-            setTimeout(() => {
-               dragStarted = false;
-            }, 100);
-         });
-         
-         item.addEventListener('dragover', (e) => {
-            e.preventDefault();
-            e.dataTransfer.dropEffect = 'move';
-            
-            if (draggedElement && draggedElement !== item) {
-               item.classList.add('drag-over');
-            }
-         });
-         
-         item.addEventListener('dragleave', (e) => {
-            item.classList.remove('drag-over');
-         });
-         
-         item.addEventListener('drop', (e) => {
-            e.preventDefault();
-            e.stopPropagation();
-            
-            if (draggedElement && draggedElement !== item) {
-               const dropIndex = Array.from(items).indexOf(item);
-               
-               // Swap the two items directly instead of reordering
-               const newItems = [...gridItems];
-               const draggedItem = newItems[draggedIndex];
-               const dropItem = newItems[dropIndex];
-               
-               // Direct swap
-               newItems[draggedIndex] = dropItem;
-               newItems[dropIndex] = draggedItem;
-               
-               gridItems = newItems;
-               
-               // Re-render grid smoothly
-               renderGrid(gridItems);
-            }
-            
-            item.classList.remove('drag-over');
-         });
+         }
       });
-   }
+   };
    
-   // Initialize grid items
-   function initializeGrid() {
+   const initializeGrid = () => {
       // Intro card
       const introCard = {
          id: 'intro',
@@ -347,82 +276,20 @@
          },
       ];
       
-      // Load project links from JSON file
-      fetch('./projects.json')
-         .then(r => r.json())
-         .then(projectLinks => {
-            // Fetch Substack posts
-            fetch("https://api.rss2json.com/v1/api.json?rss_url=https://adnjoo.substack.com/feed")
-               .then(r => r.json())
-               .then(data => {
-                  const posts = data.items || [];
-                  const substackItems = posts.slice(0, 6).map((post, index) => {
-                     let image = extractImageFromContent(post.content) || 
-                                extractImageFromContent(post.description);
-                     
-                     // Use placeholder if no image found
-                     if (!image) {
-                        image = `https://picsum.photos/400/300?random=${index}`;
-                     }
-                     
-                     return {
-                        id: `substack-${index}`,
-                        type: 'substack',
-                        title: post.title,
-                        image: image,
-                        link: post.link,
-                        badgeColor: 'rgba(249, 115, 22, 0.8)',
-                     };
-                  });
-                  
-                  // Combine all items
-                  gridItems = [introCard, ...substackItems, ...socialLinks, ...projectLinks];
-                  
-                  // Render without shuffling
-                  renderGrid(gridItems);
-               })
-               .catch(err => {
-                  console.error('Error loading Substack feed:', err);
-                  // Fallback: just render intro, social and project links
-                  gridItems = [introCard, ...socialLinks, ...projectLinks];
-                  renderGrid(gridItems);
-               });
-         })
-         .catch(err => {
-            console.error('Error loading projects:', err);
-            // Fallback: render without project links
-            fetch("https://api.rss2json.com/v1/api.json?rss_url=https://adnjoo.substack.com/feed")
-               .then(r => r.json())
-               .then(data => {
-                  const posts = data.items || [];
-                  const substackItems = posts.slice(0, 6).map((post, index) => {
-                     let image = extractImageFromContent(post.content) || 
-                                extractImageFromContent(post.description);
-                     
-                     if (!image) {
-                        image = `https://picsum.photos/400/300?random=${index}`;
-                     }
-                     
-                     return {
-                        id: `substack-${index}`,
-                        type: 'substack',
-                        title: post.title,
-                        image: image,
-                        link: post.link,
-                        badgeColor: 'rgba(249, 115, 22, 0.8)',
-                     };
-                  });
-                  
-                  gridItems = [introCard, ...substackItems, ...socialLinks];
-                  renderGrid(gridItems);
-               })
-               .catch(err => {
-                  console.error('Error loading Substack feed:', err);
-                  gridItems = [introCard, ...socialLinks];
-                  renderGrid(gridItems);
-               });
-         });
-   }
+      const renderItems = (substackItems = [], projectLinks = []) => {
+         gridItems = [introCard, ...substackItems, ...socialLinks, ...projectLinks];
+         renderGrid(gridItems);
+      };
+      
+      Promise.all([
+         fetch('./projects.json').then(r => r.json()).catch(() => []),
+         fetchSubstackPosts().catch(() => [])
+      ]).then(([projectLinks, substackItems]) => {
+         renderItems(substackItems, projectLinks);
+      }).catch(() => {
+         renderItems();
+      });
+   };
    
    // Shuffle button handler
    shuffleButton.addEventListener('click', () => {
