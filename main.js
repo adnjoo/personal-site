@@ -121,9 +121,12 @@
          `;
       } else {
          const showTitle = item.type !== 'social';
+         const iconHTML = item.iconIsEmoji 
+            ? `<span class="text-4xl mb-3" style="font-size: 2rem; line-height: 1;">${item.icon}</span>`
+            : `<i class="${item.icon} text-3xl mb-3"></i>`;
          content = `
             <div class="grid-card-icon" style="background: linear-gradient(135deg, ${item.color || '#8b5cf6'}, ${item.color2 || '#6366f1'})">
-               <i class="${item.icon} text-4xl mb-4"></i>
+               ${iconHTML}
                ${showTitle ? `<h3 class="grid-card-title text-center">${item.title}</h3>` : ''}
                ${item.description ? `<p class="grid-card-description text-center mt-2">${item.description}</p>` : ''}
             </div>
@@ -344,65 +347,80 @@
          },
       ];
       
-      // Project links
-      const projectLinks = [
-         {
-            id: 'project-s2s',
-            type: 'project',
-            title: 'S2S',
-            description: 'Helping smol biz grow with marketing',
-            icon: 'fa-solid fa-briefcase',
-            link: 'https://stacktosale.com',
-            color: '#eab308',
-            color2: '#ca8a04',
-         },
-         {
-            id: 'project-summa',
-            type: 'project',
-            title: 'SummaTube',
-            description: 'AI YouTube Summaries',
-            icon: 'fa-brands fa-youtube',
-            link: 'https://summa.tube',
-            color: '#dc2626',
-            color2: '#b91c1c',
-         },
-      ];
-      
-      // Fetch Substack posts
-      fetch("https://api.rss2json.com/v1/api.json?rss_url=https://adnjoo.substack.com/feed")
+      // Load project links from JSON file
+      fetch('./projects.json')
          .then(r => r.json())
-         .then(data => {
-            const posts = data.items || [];
-            const substackItems = posts.slice(0, 6).map((post, index) => {
-               let image = extractImageFromContent(post.content) || 
-                          extractImageFromContent(post.description);
-               
-               // Use placeholder if no image found
-               if (!image) {
-                  image = `https://picsum.photos/400/300?random=${index}`;
-               }
-               
-               return {
-                  id: `substack-${index}`,
-                  type: 'substack',
-                  title: post.title,
-                  image: image,
-                  link: post.link,
-                  badgeColor: 'rgba(249, 115, 22, 0.8)',
-               };
-            });
-            
-            // Combine all items
-            gridItems = [introCard, ...substackItems, ...socialLinks, ...projectLinks];
-            
-            // Render without shuffling
-            renderGrid(gridItems);
+         .then(projectLinks => {
+            // Fetch Substack posts
+            fetch("https://api.rss2json.com/v1/api.json?rss_url=https://adnjoo.substack.com/feed")
+               .then(r => r.json())
+               .then(data => {
+                  const posts = data.items || [];
+                  const substackItems = posts.slice(0, 6).map((post, index) => {
+                     let image = extractImageFromContent(post.content) || 
+                                extractImageFromContent(post.description);
+                     
+                     // Use placeholder if no image found
+                     if (!image) {
+                        image = `https://picsum.photos/400/300?random=${index}`;
+                     }
+                     
+                     return {
+                        id: `substack-${index}`,
+                        type: 'substack',
+                        title: post.title,
+                        image: image,
+                        link: post.link,
+                        badgeColor: 'rgba(249, 115, 22, 0.8)',
+                     };
+                  });
+                  
+                  // Combine all items
+                  gridItems = [introCard, ...substackItems, ...socialLinks, ...projectLinks];
+                  
+                  // Render without shuffling
+                  renderGrid(gridItems);
+               })
+               .catch(err => {
+                  console.error('Error loading Substack feed:', err);
+                  // Fallback: just render intro, social and project links
+                  gridItems = [introCard, ...socialLinks, ...projectLinks];
+                  renderGrid(gridItems);
+               });
          })
          .catch(err => {
-            console.error('Error loading Substack feed:', err);
-            // Fallback: just render intro, social and project links
-            gridItems = [introCard, ...socialLinks, ...projectLinks];
-            renderGrid(gridItems);
+            console.error('Error loading projects:', err);
+            // Fallback: render without project links
+            fetch("https://api.rss2json.com/v1/api.json?rss_url=https://adnjoo.substack.com/feed")
+               .then(r => r.json())
+               .then(data => {
+                  const posts = data.items || [];
+                  const substackItems = posts.slice(0, 6).map((post, index) => {
+                     let image = extractImageFromContent(post.content) || 
+                                extractImageFromContent(post.description);
+                     
+                     if (!image) {
+                        image = `https://picsum.photos/400/300?random=${index}`;
+                     }
+                     
+                     return {
+                        id: `substack-${index}`,
+                        type: 'substack',
+                        title: post.title,
+                        image: image,
+                        link: post.link,
+                        badgeColor: 'rgba(249, 115, 22, 0.8)',
+                     };
+                  });
+                  
+                  gridItems = [introCard, ...substackItems, ...socialLinks];
+                  renderGrid(gridItems);
+               })
+               .catch(err => {
+                  console.error('Error loading Substack feed:', err);
+                  gridItems = [introCard, ...socialLinks];
+                  renderGrid(gridItems);
+               });
          });
    }
    

@@ -1,0 +1,34 @@
+[
+  {
+    "id": "project-s2s",
+    "type": "project",
+    "title": "S2S",
+    "description": "Helping smol biz grow with marketing",
+    "icon": "fa-solid fa-briefcase",
+    "link": "https://stacktosale.com",
+    "color": "#eab308",
+    "color2": "#ca8a04"
+  },
+  {
+    "id": "project-summa",
+    "type": "project",
+    "title": "SummaTube",
+    "description": "AI YouTube Summaries",
+    "icon": "fa-brands fa-youtube",
+    "link": "https://summa.tube",
+    "color": "#dc2626",
+    "color2": "#b91c1c"
+  },
+  {
+    "id": "project-mangabanana",
+    "type": "project",
+    "title": "MangaBanana",
+    "description": "AI Manga Maker",
+    "icon": "🍌",
+    "iconIsEmoji": true,
+    "link": "https://mangabanana.lol",
+    "color": "#fbbf24",
+    "color2": "#f59e0b"
+  }
+]
+
