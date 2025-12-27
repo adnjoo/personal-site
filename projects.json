@@ -39,6 +39,36 @@
     "link": "./assets/artificial_sentience.pdf",
     "color": "#6366f1",
     "color2": "#8b5cf6"
+  },
+  {
+    "id": "project-self",
+    "type": "project",
+    "title": "Self",
+    "description": "A philosophical exploration of self",
+    "icon": "fa-solid fa-file-pdf",
+    "link": "./assets/self (1).pdf",
+    "color": "#10b981",
+    "color2": "#059669"
+  },
+  {
+    "id": "project-self-time",
+    "type": "project",
+    "title": "Self and Time",
+    "description": "On the relationship between self and temporal experience",
+    "icon": "fa-solid fa-file-pdf",
+    "link": "./assets/self_time.pdf",
+    "color": "#f59e0b",
+    "color2": "#d97706"
+  },
+  {
+    "id": "project-sim",
+    "type": "project",
+    "title": "Simulation",
+    "description": "A study on simulation theory",
+    "icon": "fa-solid fa-file-pdf",
+    "link": "./assets/sim.pdf",
+    "color": "#8b5cf6",
+    "color2": "#7c3aed"
   }
 ]
 
