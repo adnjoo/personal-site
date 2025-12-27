@@ -29,6 +29,16 @@
     "link": "https://mangabanana.lol",
     "color": "#fbbf24",
     "color2": "#f59e0b"
+  },
+  {
+    "id": "project-sentience",
+    "type": "project",
+    "title": "Artificial Sentience",
+    "description": "Sentience as a Distinct Design Axis",
+    "icon": "fa-solid fa-file-pdf",
+    "link": "./artificial_sentience.pdf",
+    "color": "#6366f1",
+    "color2": "#8b5cf6"
   }
 ]
 
