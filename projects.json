@@ -61,14 +61,24 @@
     "color2": "#d97706"
   },
   {
-    "id": "project-sim",
+    "id": "project-id-load",
     "type": "project",
-    "title": "Simulation",
-    "description": "A study on simulation theory",
+    "title": "ID Load",
+    "description": "A paper on identity and cognitive load",
     "icon": "fa-solid fa-file-pdf",
-    "link": "./assets/sim.pdf",
-    "color": "#8b5cf6",
-    "color2": "#7c3aed"
+    "link": "./assets/id-load.pdf",
+    "color": "#ec4899",
+    "color2": "#db2777"
+  },
+  {
+    "id": "project-impact",
+    "type": "project",
+    "title": "Impact",
+    "description": "A study on impact and influence",
+    "icon": "fa-solid fa-file-pdf",
+    "link": "./assets/impact.pdf",
+    "color": "#14b8a6",
+    "color2": "#0d9488"
   }
 ]
 
