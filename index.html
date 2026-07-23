@@ -111,13 +111,13 @@ renderer.shadowMap.enabled = true;
 renderer.shadowMap.type = THREE.PCFSoftShadowMap;
 renderer.outputColorSpace = THREE.SRGBColorSpace;
 renderer.toneMapping = THREE.ACESFilmicToneMapping;
-renderer.toneMappingExposure = 1.05;
+renderer.toneMappingExposure = 1.2;
 document.getElementById('app').appendChild(renderer.domElement);
 
 // ---------- scene ----------
 const scene = new THREE.Scene();
-scene.background = new THREE.Color('#241b33');
-scene.fog = new THREE.Fog('#241b33', 12, 26);
+scene.background = new THREE.Color('#3a2c42');
+scene.fog = new THREE.Fog('#3a2c42', 16, 30);
 
 const camera = new THREE.PerspectiveCamera(45, innerWidth / innerHeight, 0.1, 100);
 camera.position.set(6.5, 4.6, 7.2);
@@ -141,7 +141,7 @@ floor.rotation.x = -Math.PI / 2;
 floor.receiveShadow = true;
 scene.add(floor);
 
-const wallMat = new THREE.MeshStandardMaterial({ color: '#6b5a86', roughness: 1 });
+const wallMat = new THREE.MeshStandardMaterial({ color: '#836a86', roughness: 1 });
 function wall(w, h, x, y, z, ry) {
   const m = new THREE.Mesh(new THREE.PlaneGeometry(w, h), wallMat);
   m.position.set(x, y, z);
@@ -154,16 +154,24 @@ wall(ROOM, H, 0, H / 2, -half, 0);            // back wall (-Z)
 wall(ROOM, H, -half, H / 2, 0, Math.PI / 2);  // left wall (-X)
 
 // ---------- lighting ----------
-scene.add(new THREE.HemisphereLight('#8f7bbf', '#2a2036', 0.55));
+// warm, brighter ambient so the whole room feels cozy rather than dim
+scene.add(new THREE.HemisphereLight('#e2c4a0', '#4a3a4e', 0.85));
+scene.add(new THREE.AmbientLight('#ffd9b0', 0.28));
 
-const ambientWarm = new THREE.PointLight('#ffb066', 26, 16, 2);
-ambientWarm.position.set(2.6, 2.4, 1.2);
+// hero glow — the corner standing lamp
+const ambientWarm = new THREE.PointLight('#ffb066', 34, 22, 2);
+ambientWarm.position.set(3.3, 2.2, -3.3);  // inside the standing lamp's shade
 ambientWarm.castShadow = true;
 ambientWarm.shadow.mapSize.set(1024, 1024);
 ambientWarm.shadow.bias = -0.0025;
 scene.add(ambientWarm);
 
-const moon = new THREE.DirectionalLight('#9fb8ff', 0.5);
+// soft warm room fill on the left/front so that side isn't crushed (no shadow)
+const cozyFill = new THREE.PointLight('#ffc98a', 16, 20, 2);
+cozyFill.position.set(-2.4, 3.0, 2.2);
+scene.add(cozyFill);
+
+const moon = new THREE.DirectionalLight('#a9c0ff', 0.4);
 moon.position.set(-6, 8, -4);
 moon.castShadow = true;
 moon.shadow.mapSize.set(2048, 2048);
@@ -172,7 +180,7 @@ Object.assign(moon.shadow.camera, { left: -d, right: d, top: d, bottom: -d, near
 moon.shadow.bias = -0.0006;
 scene.add(moon);
 
-const fill = new THREE.DirectionalLight('#ffd9a8', 0.25);
+const fill = new THREE.DirectionalLight('#ffe0b8', 0.5);
 fill.position.set(4, 3, 5);
 scene.add(fill);
 
@@ -355,7 +363,6 @@ async function build() {
     place('armchair_pillows',        { p: [3.0, 0, -0.6], ry: -R * 1.15 }),
     place('table_low',               { p: [0, 0, 0.3], ry: 0 }),
     place('book_set',                { p: [-0.5, 0.725, 0.1], ry: 0.5, s: 0.9 }),
-    place('lamp_table',              { p: [0.55, 0.50, 0.4], ry: 0, s: 0.6 }),
     place('lamp_standing',           { p: [3.3, 0, -3.3], ry: R }),
     place('shelf_B_large_decorated', { p: [-3.3, 0, -3.35], ry: 0 }),
     place('cabinet_small_decorated', { p: [-3.4, 0, -1.0], ry: R }),
