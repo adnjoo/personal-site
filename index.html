@@ -1,133 +1,474 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<title>Projects and writing</title>
-<script src="https://cdn.tailwindcss.com"></script>
-<script src="https://cdn.jsdelivr.net/npm/p5@1.9.0/lib/p5.min.js"></script>
-<meta charset="utf-8"/>
-<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<meta charset="utf-8" />
+<title>Andrew Njoo</title>
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<meta name="description" content="Andrew Njoo — projects and links. Trippy Bento, GitHub, LinkedIn." />
+<style>
+  html, body { margin: 0; height: 100%; overflow: hidden; background: #1a1526; }
+  #app { position: fixed; inset: 0; }
+  canvas { display: block; touch-action: none; }
+
+  #hint {
+    position: fixed; left: 16px; bottom: 14px; z-index: 10;
+    font: 13px/1.4 ui-monospace, Menlo, monospace; color: #d9c8ff;
+    opacity: .55; user-select: none; pointer-events: none;
+  }
+  #loading {
+    position: fixed; inset: 0; z-index: 20; display: grid; place-items: center;
+    font: 14px ui-monospace, monospace; color: #cdbcff; background: #1a1526;
+    transition: opacity .6s ease; letter-spacing: .5px;
+  }
+
+  /* Accessible / SEO fallback: real links, visually hidden but reachable by
+     screen readers and crawlers. Becomes visible if the 3D scene can't run. */
+  .a11y {
+    position: fixed; left: 0; top: 0; z-index: 5;
+    width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0);
+    white-space: nowrap;
+  }
+  .a11y a { color: #cdbcff; }
+
+  /* WebGL-unavailable fallback panel */
+  #fallback {
+    position: fixed; inset: 0; z-index: 30; display: none;
+    place-items: center; background: #1a1526; color: #eee;
+    font: 16px/1.6 ui-sans-serif, system-ui, sans-serif; padding: 24px;
+  }
+  #fallback .card { max-width: 380px; text-align: center; }
+  #fallback h1 { font-size: 22px; margin: 0 0 4px; letter-spacing: .3px; }
+  #fallback p { color: #b9add6; margin: 0 0 20px; font-size: 14px; }
+  #fallback a {
+    display: block; margin: 10px auto; max-width: 260px; padding: 12px 16px;
+    color: #eee; text-decoration: none; border: 1px solid #4a3f63;
+    border-radius: 10px; background: #241b33; transition: background .15s;
+  }
+  #fallback a:hover { background: #2f2542; }
+</style>
 </head>
-<body class="min-h-screen bg-transparent text-neutral-100 antialiased">
-<div id="bg-canvas" class="fixed inset-0 -z-10"></div>
-<div class="max-w-2xl mx-auto px-6 py-12 md:py-16 lg:py-20 bg-black/30 backdrop-blur-sm rounded-lg my-4">
-<header class="mb-16 md:mb-20">
-<h1 class="text-3xl md:text-4xl font-semibold mb-3 tracking-tight">Andrew Njoo</h1>
-<p class="text-lg md:text-xl text-neutral-400 leading-relaxed">Projects and writing.</p>
-</header>
-<hr class="border-neutral-700 mb-16 md:mb-20"/>
-<main>
-<section class="mb-16 md:mb-20">
-<h2 class="text-xl md:text-2xl font-semibold mb-6 tracking-tight">Writing</h2>
-<p class="text-sm text-neutral-500 mb-6 italic">working papers (informal notes)</p>
-<ul class="space-y-4">
-<li class="space-y-1"><a href="./assets/artificial_sentience.pdf" class="text-neutral-100 hover:text-neutral-300 hover:underline focus:outline-none focus:ring-2 focus:ring-neutral-400 focus:ring-offset-2 rounded transition-colors inline-flex items-baseline gap-2" target="_blank" rel="noopener"><span>Artificial Sentience</span></a><div class="text-sm text-neutral-400">Sentience as a distinct design axis for AI systems.</div></li>
-<li class="space-y-1"><a href="./assets/b_tax.pdf" class="text-neutral-100 hover:text-neutral-300 hover:underline focus:outline-none focus:ring-2 focus:ring-neutral-400 focus:ring-offset-2 rounded transition-colors inline-flex items-baseline gap-2" target="_blank" rel="noopener"><span>Capping Extreme Wealth</span></a><div class="text-sm text-neutral-400">On progressive taxation and wealth caps.</div></li>
-</ul>
-</section>
-<hr class="border-neutral-700 mb-16 md:mb-20"/>
-<section class="mb-16 md:mb-20">
-<h2 class="text-xl md:text-2xl font-semibold mb-6 tracking-tight">Projects</h2>
-<ul class="space-y-4">
-<li class="space-y-1"><a href="https://trippybento.github.io/website/" class="text-neutral-100 hover:text-neutral-300 hover:underline focus:outline-none focus:ring-2 focus:ring-neutral-400 focus:ring-offset-2 rounded transition-colors" target="_blank" rel="noopener">Trippy Bento</a><div class="text-sm text-neutral-400">Games I build for fun.</div></li>
-</ul>
-</section>
-</main>
-<hr class="border-neutral-700 mb-12 md:mb-16"/>
-<footer class="space-y-8">
-<div><h3 class="text-sm font-medium text-neutral-300 mb-4">Links</h3><nav><ul class="flex flex-wrap gap-x-6 gap-y-2 text-sm">
-<li><a href="https://github.com/adnjoo" class="text-neutral-400 hover:text-neutral-100 hover:underline focus:outline-none focus:ring-2 focus:ring-neutral-400 focus:ring-offset-2 rounded transition-colors" target="_blank" rel="noopener">GitHub</a></li>
-<li><a href="https://linkedin.com/in/adnjoo" class="text-neutral-400 hover:text-neutral-100 hover:underline focus:outline-none focus:ring-2 focus:ring-neutral-400 focus:ring-offset-2 rounded transition-colors" target="_blank" rel="noopener">LinkedIn</a></li>
-</ul></nav>
-<p class="mt-4 text-xs text-neutral-500">No public contact.</p>
+<body>
+<div id="app"></div>
+<div id="loading">warming up the room…</div>
+<div id="hint">drag to look · scroll to zoom · click a frame</div>
+
+<!-- Real links for accessibility & search engines -->
+<nav class="a11y" aria-label="Links">
+  <h1>Andrew Njoo</h1>
+  <ul>
+    <li><a href="https://trippybento.github.io/website/">Trippy Bento — games I build for fun</a></li>
+    <li><a href="https://github.com/adnjoo">GitHub</a></li>
+    <li><a href="https://linkedin.com/in/adnjoo">LinkedIn</a></li>
+  </ul>
+</nav>
+
+<!-- Shown only if WebGL isn't available -->
+<div id="fallback">
+  <div class="card">
+    <h1>Andrew Njoo</h1>
+    <p>Your browser can't render the 3D room — here are the links.</p>
+    <a href="https://trippybento.github.io/website/">Trippy Bento ↗</a>
+    <a href="https://github.com/adnjoo">GitHub ↗</a>
+    <a href="https://linkedin.com/in/adnjoo">LinkedIn ↗</a>
+  </div>
 </div>
-</footer>
-</div>
-<script>
-// p5.js — Flow-field smoke ribbons
-let particles = [];
-const N = 6000;
 
-function setup() {
-  const canvas = createCanvas(windowWidth, windowHeight);
-  canvas.parent('bg-canvas');
-  background(0);
-  strokeWeight(1);
-  for (let i = 0; i < N; i++) particles.push(new P());
-}
-
-function draw() {
-  // Fade the canvas slightly (leaves trails)
-  noStroke();
-  fill(0, 0, 0, 18); // lower = longer trails
-  rect(0, 0, width, height);
-
-  blendMode(ADD); // glow-ish additive blend
-  strokeWeight(1);
-
-  for (let p of particles) {
-    p.step();
-    p.draw();
-  }
-
-  blendMode(BLEND);
-}
-
-class P {
-  constructor() { this.reset(); }
-
-  reset() {
-    this.x = random(width);
-    this.y = random(height);
-    this.px = this.x;
-    this.py = this.y;
-    this.h = random(360);
-    this.life = random(200, 900);
-  }
-
-  // "curl-ish" flow field from noise
-  flowAngle(x, y) {
-    const s = 0.0016;        // scale of field
-    const t = frameCount*0.0004; // time (slowed down)
-    // sample noise at nearby points to approximate a rotation
-    const n1 = noise(x*s, y*s, t);
-    const n2 = noise((x+50)*s, (y-50)*s, t);
-    return (n1 - n2) * TWO_PI * 3.0;
-  }
-
-  step() {
-    this.px = this.x;
-    this.py = this.y;
-
-    const a = this.flowAngle(this.x, this.y);
-    const v = 0.3 + noise(this.x*0.003, this.y*0.003) * 0.4;
-
-    this.x += cos(a) * v;
-    this.y += sin(a) * v;
-
-    this.life -= 1;
-
-    // wrap/reset
-    if (this.x < -20 || this.x > width+20 || this.y < -20 || this.y > height+20 || this.life <= 0) {
-      this.reset();
-    }
-  }
-
-  draw() {
-    // Color varies by angle/speed-ish
-    this.h = (this.h + 0.05) % 360;
-    stroke(this.h, 80, 100, 0.08); // needs HSB mode
-    // switch to HSB just for the stroke
-    colorMode(HSB, 360, 100, 100, 1);
-    stroke(this.h, 90, 100, 0.10);
-    line(this.px, this.py, this.x, this.y);
-    colorMode(RGB, 255, 255, 255, 255);
+<script type="importmap">
+{
+  "imports": {
+    "three": "https://unpkg.com/three@0.160.0/build/three.module.js",
+    "three/addons/": "https://unpkg.com/three@0.160.0/examples/jsm/"
   }
 }
+</script>
 
-function windowResized() {
-  resizeCanvas(windowWidth, windowHeight);
-  background(0);
+<script type="module">
+import * as THREE from 'three';
+import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
+import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
+
+const GLTF = 'KayKit_Furniture_Bits_1.0_FREE/Assets/gltf/';
+
+// ---------- WebGL guard ----------
+function webglOK() {
+  try {
+    const c = document.createElement('canvas');
+    return !!(window.WebGLRenderingContext && (c.getContext('webgl') || c.getContext('experimental-webgl')));
+  } catch (e) { return false; }
 }
+if (!webglOK()) {
+  document.getElementById('loading').remove();
+  document.getElementById('hint').remove();
+  document.getElementById('fallback').style.display = 'grid';
+  throw new Error('no webgl');
+}
+
+// ---------- renderer ----------
+const renderer = new THREE.WebGLRenderer({ antialias: true });
+renderer.setPixelRatio(Math.min(devicePixelRatio, 2));
+renderer.setSize(innerWidth, innerHeight);
+renderer.shadowMap.enabled = true;
+renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+renderer.outputColorSpace = THREE.SRGBColorSpace;
+renderer.toneMapping = THREE.ACESFilmicToneMapping;
+renderer.toneMappingExposure = 1.05;
+document.getElementById('app').appendChild(renderer.domElement);
+
+// ---------- scene ----------
+const scene = new THREE.Scene();
+scene.background = new THREE.Color('#241b33');
+scene.fog = new THREE.Fog('#241b33', 12, 26);
+
+const camera = new THREE.PerspectiveCamera(45, innerWidth / innerHeight, 0.1, 100);
+camera.position.set(6.5, 4.6, 7.2);
+
+const controls = new OrbitControls(camera, renderer.domElement);
+controls.enableDamping = true;
+controls.dampingFactor = 0.07;
+controls.target.set(0, 1.6, -1.2);
+controls.minDistance = 4;
+controls.maxDistance = 16;
+controls.maxPolarAngle = Math.PI / 2.05;
+
+// ---------- room shell ----------
+const ROOM = 9;
+const H = 5;
+const half = ROOM / 2;
+
+const floorMat = new THREE.MeshStandardMaterial({ color: '#b08d63', roughness: 0.95 });
+const floor = new THREE.Mesh(new THREE.PlaneGeometry(ROOM, ROOM), floorMat);
+floor.rotation.x = -Math.PI / 2;
+floor.receiveShadow = true;
+scene.add(floor);
+
+const wallMat = new THREE.MeshStandardMaterial({ color: '#6b5a86', roughness: 1 });
+function wall(w, h, x, y, z, ry) {
+  const m = new THREE.Mesh(new THREE.PlaneGeometry(w, h), wallMat);
+  m.position.set(x, y, z);
+  m.rotation.y = ry;
+  m.receiveShadow = true;
+  scene.add(m);
+  return m;
+}
+wall(ROOM, H, 0, H / 2, -half, 0);            // back wall (-Z)
+wall(ROOM, H, -half, H / 2, 0, Math.PI / 2);  // left wall (-X)
+
+// ---------- lighting ----------
+scene.add(new THREE.HemisphereLight('#8f7bbf', '#2a2036', 0.55));
+
+const ambientWarm = new THREE.PointLight('#ffb066', 26, 16, 2);
+ambientWarm.position.set(2.6, 2.4, 1.2);
+ambientWarm.castShadow = true;
+ambientWarm.shadow.mapSize.set(1024, 1024);
+ambientWarm.shadow.bias = -0.0025;
+scene.add(ambientWarm);
+
+const moon = new THREE.DirectionalLight('#9fb8ff', 0.5);
+moon.position.set(-6, 8, -4);
+moon.castShadow = true;
+moon.shadow.mapSize.set(2048, 2048);
+const d = 8;
+Object.assign(moon.shadow.camera, { left: -d, right: d, top: d, bottom: -d, near: 1, far: 30 });
+moon.shadow.bias = -0.0006;
+scene.add(moon);
+
+const fill = new THREE.DirectionalLight('#ffd9a8', 0.25);
+fill.position.set(4, 3, 5);
+scene.add(fill);
+
+// ---------- loader ----------
+const loader = new GLTFLoader();
+const cache = new Map();
+function load(name) {
+  if (!cache.has(name)) {
+    cache.set(name, new Promise((res, rej) =>
+      loader.load(GLTF + name + '.gltf', g => res(g.scene), undefined, rej)));
+  }
+  return cache.get(name).then(s => s.clone(true));
+}
+async function place(name, { p = [0, 0, 0], ry = 0, s = 1 } = {}) {
+  const obj = await load(name);
+  obj.position.set(...p);
+  obj.rotation.y = ry;
+  obj.scale.setScalar(s);
+  obj.traverse(o => { if (o.isMesh) { o.castShadow = true; o.receiveShadow = true; } });
+  scene.add(obj);
+  return obj;
+}
+
+// ---------- label textures ----------
+function makeCanvas(w, h) {
+  const c = document.createElement('canvas');
+  c.width = w; c.height = h;
+  return c;
+}
+function roundRect(ctx, x, y, w, h, r) {
+  ctx.beginPath();
+  ctx.moveTo(x + r, y);
+  ctx.arcTo(x + w, y, x + w, y + h, r);
+  ctx.arcTo(x + w, y + h, x, y + h, r);
+  ctx.arcTo(x, y + h, x, y, r);
+  ctx.arcTo(x, y, x + w, y, r);
+  ctx.closePath();
+}
+function texFrom(draw, w = 512, h = 640) {
+  const c = makeCanvas(w, h);
+  const ctx = c.getContext('2d');
+  draw(ctx, w, h);
+  const t = new THREE.CanvasTexture(c);
+  t.colorSpace = THREE.SRGBColorSpace;
+  t.anisotropy = 8;
+  return t;
+}
+
+function drawTrippy(ctx, w, h) {
+  const g = ctx.createLinearGradient(0, 0, w, h);
+  g.addColorStop(0, '#ff8a3d'); g.addColorStop(0.5, '#ff5d8f'); g.addColorStop(1, '#8b5cf6');
+  ctx.fillStyle = g; ctx.fillRect(0, 0, w, h);
+  // bento grid motif
+  ctx.fillStyle = 'rgba(255,255,255,0.16)';
+  const pad = 46, gap = 16, gw = (w - pad * 2 - gap) / 2;
+  const cells = [[pad, 150, gw, gw], [pad + gw + gap, 150, gw, gw * 0.6],
+                 [pad + gw + gap, 150 + gw * 0.6 + gap, gw, gw * 0.4 - gap]];
+  cells.forEach(c => { roundRect(ctx, c[0], c[1], c[2], c[3], 14); ctx.fill(); });
+  ctx.fillStyle = '#fff';
+  ctx.textAlign = 'center';
+  ctx.font = '700 64px ui-sans-serif, system-ui, sans-serif';
+  ctx.fillText('Trippy', w / 2, 90);
+  ctx.fillText('Bento', w / 2, h - 96);
+  ctx.font = '500 26px ui-sans-serif, system-ui, sans-serif';
+  ctx.fillStyle = 'rgba(255,255,255,0.9)';
+  ctx.fillText('games I build for fun  ↗', w / 2, h - 48);
+}
+function drawGitHub(ctx, w, h) {
+  ctx.fillStyle = '#0d1117'; ctx.fillRect(0, 0, w, h);
+  ctx.strokeStyle = 'rgba(255,255,255,0.08)'; ctx.lineWidth = 6;
+  roundRect(ctx, 8, 8, w - 16, h - 16, 20); ctx.stroke();
+  // simple octocat-ish mark
+  ctx.fillStyle = '#e6edf3';
+  ctx.beginPath();
+  ctx.arc(w / 2, h * 0.42, 96, 0, Math.PI * 2); ctx.fill();
+  ctx.fillStyle = '#0d1117';
+  ctx.beginPath(); ctx.arc(w / 2 - 34, h * 0.40, 16, 0, Math.PI * 2); ctx.fill();
+  ctx.beginPath(); ctx.arc(w / 2 + 34, h * 0.40, 16, 0, Math.PI * 2); ctx.fill();
+  ctx.fillStyle = '#e6edf3';
+  ctx.font = '700 52px ui-sans-serif, system-ui, sans-serif';
+  ctx.textAlign = 'center';
+  ctx.fillText('GitHub', w / 2, h - 130);
+  ctx.font = '500 30px ui-monospace, monospace';
+  ctx.fillStyle = '#8b949e';
+  ctx.fillText('@adnjoo  ↗', w / 2, h - 80);
+}
+function drawLinkedIn(ctx, w, h) {
+  ctx.fillStyle = '#0a66c2'; ctx.fillRect(0, 0, w, h);
+  // "in" tile
+  ctx.fillStyle = '#fff';
+  roundRect(ctx, w / 2 - 78, h * 0.30 - 78, 156, 156, 28); ctx.fill();
+  ctx.fillStyle = '#0a66c2';
+  ctx.font = '800 104px ui-sans-serif, system-ui, sans-serif';
+  ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+  ctx.fillText('in', w / 2, h * 0.30 + 6);
+  ctx.textBaseline = 'alphabetic';
+  ctx.fillStyle = '#fff';
+  ctx.font = '700 48px ui-sans-serif, system-ui, sans-serif';
+  ctx.fillText('LinkedIn', w / 2, h - 130);
+  ctx.font = '500 30px ui-monospace, monospace';
+  ctx.fillStyle = 'rgba(255,255,255,0.85)';
+  ctx.fillText('@adnjoo  ↗', w / 2, h - 80);
+}
+function drawName(ctx, w, h) {
+  const g = ctx.createLinearGradient(0, 0, 0, h);
+  g.addColorStop(0, '#2a2036'); g.addColorStop(1, '#1c1526');
+  ctx.fillStyle = g; ctx.fillRect(0, 0, w, h);
+  ctx.strokeStyle = 'rgba(207,188,255,0.25)'; ctx.lineWidth = 4;
+  roundRect(ctx, 14, 14, w - 28, h - 28, 16); ctx.stroke();
+  ctx.textAlign = 'center';
+  ctx.fillStyle = '#f4eefe';
+  ctx.font = '700 66px Georgia, ui-serif, serif';
+  ctx.fillText('Andrew', w / 2, h / 2 - 6);
+  ctx.fillText('Njoo', w / 2, h / 2 + 66);
+  ctx.font = '400 26px ui-monospace, monospace';
+  ctx.fillStyle = '#b9add6';
+  ctx.fillText('projects & links', w / 2, h - 46);
+}
+
+// ---------- interactive link frames ----------
+const links = [];          // { frame, plane, halo, url, basePos:Vector3[], normal:Vector3 }
+const pickables = [];      // meshes for raycasting -> mesh.userData.link
+
+// facing: 'z' (back wall, normal +Z) or 'x' (left wall, normal +X)
+async function addFrame({ model, p, ry = 0, facing = 'z', url, draw, canvasW = 512, canvasH = 640 }) {
+  const frame = await place(model, { p, ry });
+  const box = new THREE.Box3().setFromObject(frame);
+  const size = new THREE.Vector3(); box.getSize(size);
+  const center = new THREE.Vector3(); box.getCenter(center);
+
+  let planeW, planeH, normal, pos;
+  const eps = 0.03;
+  if (facing === 'z') {
+    planeW = size.x * 0.72; planeH = size.y * 0.72;
+    normal = new THREE.Vector3(0, 0, 1);
+    pos = new THREE.Vector3(center.x, center.y, center.z + size.z / 2 + eps);
+  } else {
+    planeW = size.z * 0.72; planeH = size.y * 0.72;
+    normal = new THREE.Vector3(1, 0, 0);
+    pos = new THREE.Vector3(center.x + size.x / 2 + eps, center.y, center.z);
+  }
+
+  // art plane (unlit so it's always legible, like a small lit picture)
+  const tex = texFrom(draw, canvasW, canvasH);
+  const mat = new THREE.MeshBasicMaterial({ map: tex, toneMapped: false });
+  const plane = new THREE.Mesh(new THREE.PlaneGeometry(planeW, planeH), mat);
+  plane.position.copy(pos);
+  plane.rotation.y = ry;
+  scene.add(plane);
+
+  // hover halo (accent glow behind, hidden until hover)
+  const halo = new THREE.Mesh(
+    new THREE.PlaneGeometry(planeW * 1.14, planeH * 1.12),
+    new THREE.MeshBasicMaterial({ color: '#ffd9a8', transparent: true, opacity: 0, toneMapped: false })
+  );
+  halo.position.copy(pos).addScaledVector(normal, -0.01);
+  halo.rotation.y = ry;
+  scene.add(halo);
+
+  const link = {
+    frame, plane, halo, url, normal,
+    baseFrame: frame.position.clone(),
+    basePlane: plane.position.clone(),
+    baseHalo: halo.position.clone(),
+    hover: 0, target: 0
+  };
+  links.push(link);
+
+  // register pickable meshes
+  plane.userData.link = link; pickables.push(plane);
+  frame.traverse(o => { if (o.isMesh) { o.userData.link = link; pickables.push(o); } });
+}
+
+// ---------- compose the room ----------
+const R = Math.PI / 2;
+async function build() {
+  await Promise.all([
+    place('rug_rectangle_A',         { p: [0, 0.01, 0.4], ry: 0, s: 1.15 }),
+    place('couch_pillows',           { p: [-0.4, 0, -3.1], ry: 0 }),
+    place('armchair_pillows',        { p: [3.0, 0, -0.6], ry: -R * 1.15 }),
+    place('table_low',               { p: [0, 0, 0.3], ry: 0 }),
+    place('book_set',                { p: [-0.5, 0.725, 0.1], ry: 0.5, s: 0.9 }),
+    place('lamp_table',              { p: [0.55, 0.50, 0.4], ry: 0, s: 0.6 }),
+    place('lamp_standing',           { p: [3.3, 0, -3.3], ry: R }),
+    place('shelf_B_large_decorated', { p: [-3.3, 0, -3.35], ry: 0 }),
+    place('cabinet_small_decorated', { p: [-3.4, 0, -1.0], ry: R }),
+    place('cactus_medium_A',         { p: [-3.5, 0, 2.6], ry: 0.4 }),
+    place('cactus_small_B',          { p: [3.6, 0, 2.8], ry: -0.3 }),
+
+    // --- the three links, as framed art on the back wall ---
+    addFrame({
+      model: 'pictureframe_large_A', p: [0.3, 2.95, -4.42], facing: 'z',
+      url: 'https://trippybento.github.io/website/', draw: drawTrippy, canvasW: 512, canvasH: 620
+    }),
+    addFrame({
+      model: 'pictureframe_medium', p: [-2.6, 2.8, -4.42], facing: 'z',
+      url: 'https://github.com/adnjoo', draw: drawGitHub, canvasW: 512, canvasH: 620
+    }),
+    addFrame({
+      model: 'pictureframe_small_C', p: [2.4, 3.05, -4.42], facing: 'z',
+      url: 'https://linkedin.com/in/adnjoo', draw: drawLinkedIn, canvasW: 512, canvasH: 620
+    }),
+
+    // --- name plaque on the left wall ---
+    addFrame({
+      model: 'pictureframe_large_A', p: [-4.42, 2.7, 1.0], ry: R, facing: 'x',
+      url: null, draw: drawName, canvasW: 512, canvasH: 620
+    }),
+  ]);
+}
+
+// ---------- raycasting / interaction ----------
+const raycaster = new THREE.Raycaster();
+const pointer = new THREE.Vector2();
+let hovered = null;
+let downPos = null, downTime = 0;
+
+function setPointer(e) {
+  pointer.x = (e.clientX / innerWidth) * 2 - 1;
+  pointer.y = -(e.clientY / innerHeight) * 2 + 1;
+}
+function pick() {
+  raycaster.setFromCamera(pointer, camera);
+  const hits = raycaster.intersectObjects(pickables, false);
+  return hits.length ? hits[0].object.userData.link : null;
+}
+
+renderer.domElement.addEventListener('pointermove', (e) => {
+  setPointer(e);
+  const link = pick();
+  const clickable = link && link.url;
+  document.body.style.cursor = clickable ? 'pointer' : 'grab';
+  if (link !== hovered) {
+    if (hovered) hovered.target = 0;
+    hovered = clickable ? link : null;
+    if (hovered) hovered.target = 1;
+  }
+});
+renderer.domElement.addEventListener('pointerdown', (e) => {
+  downPos = { x: e.clientX, y: e.clientY };
+  downTime = performance.now();
+});
+renderer.domElement.addEventListener('pointerup', (e) => {
+  if (!downPos) return;
+  const moved = Math.hypot(e.clientX - downPos.x, e.clientY - downPos.y);
+  const dt = performance.now() - downTime;
+  downPos = null;
+  if (moved > 6 || dt > 500) return;   // it was a drag, not a click
+  setPointer(e);
+  const link = pick();
+  if (link && link.url) window.open(link.url, '_blank', 'noopener');
+});
+
+// ---------- run ----------
+build()
+  .then(() => {
+    const l = document.getElementById('loading');
+    l.style.opacity = '0';
+    setTimeout(() => l.remove(), 700);
+  })
+  .catch(err => {
+    console.error(err);
+    document.getElementById('loading').textContent = 'failed to load assets — see console';
+  });
+
+addEventListener('resize', () => {
+  camera.aspect = innerWidth / innerHeight;
+  camera.updateProjectionMatrix();
+  renderer.setSize(innerWidth, innerHeight);
+});
+
+// ---------- animate ----------
+const clock = new THREE.Clock();
+renderer.setAnimationLoop(() => {
+  const t = clock.getElapsedTime();
+  ambientWarm.intensity = 26 + Math.sin(t * 2.3) * 1.2 + Math.sin(t * 7.1) * 0.5;
+
+  // smooth hover response: lift toward camera + fade halo
+  for (const lk of links) {
+    lk.hover += (lk.target - lk.hover) * 0.18;
+    const lift = lk.hover * 0.10;
+    lk.frame.position.copy(lk.baseFrame).addScaledVector(lk.normal, lift);
+    lk.plane.position.copy(lk.basePlane).addScaledVector(lk.normal, lift);
+    lk.halo.position.copy(lk.baseHalo).addScaledVector(lk.normal, lift);
+    lk.halo.material.opacity = lk.hover * 0.6;
+    const sc = 1 + lk.hover * 0.05;
+    lk.plane.scale.setScalar(sc);
+  }
+
+  controls.update();
+  renderer.render(scene, camera);
+});
+
+// expose for automated testing
+window.__links = links;
+
 </script>
 </body>
 </html>
