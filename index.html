@@ -229,6 +229,28 @@ function texFrom(draw, w = 512, h = 640) {
   return t;
 }
 
+function loadImage(src) {
+  return new Promise((res, rej) => {
+    const im = new Image();
+    im.onload = () => res(im);
+    im.onerror = rej;
+    im.src = src;
+  });
+}
+// contain-fit an image onto a frame-shaped canvas, over a paper background
+function texFromImage(img, w = 512, h = 640, bg = '#f7f3ec') {
+  const c = makeCanvas(w, h);
+  const ctx = c.getContext('2d');
+  ctx.fillStyle = bg; ctx.fillRect(0, 0, w, h);
+  const s = Math.min(w / img.width, h / img.height);
+  const dw = img.width * s, dh = img.height * s;
+  ctx.drawImage(img, (w - dw) / 2, (h - dh) / 2, dw, dh);
+  const t = new THREE.CanvasTexture(c);
+  t.colorSpace = THREE.SRGBColorSpace;
+  t.anisotropy = 8;
+  return t;
+}
+
 function drawTrippy(ctx, w, h) {
   const g = ctx.createLinearGradient(0, 0, w, h);
   g.addColorStop(0, '#ff8a3d'); g.addColorStop(0.5, '#ff5d8f'); g.addColorStop(1, '#8b5cf6');
@@ -267,23 +289,6 @@ function drawGitHub(ctx, w, h) {
   ctx.fillStyle = '#8b949e';
   ctx.fillText('@adnjoo  ↗', w / 2, h - 80);
 }
-function drawLinkedIn(ctx, w, h) {
-  ctx.fillStyle = '#0a66c2'; ctx.fillRect(0, 0, w, h);
-  // "in" tile
-  ctx.fillStyle = '#fff';
-  roundRect(ctx, w / 2 - 78, h * 0.30 - 78, 156, 156, 28); ctx.fill();
-  ctx.fillStyle = '#0a66c2';
-  ctx.font = '800 104px ui-sans-serif, system-ui, sans-serif';
-  ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
-  ctx.fillText('in', w / 2, h * 0.30 + 6);
-  ctx.textBaseline = 'alphabetic';
-  ctx.fillStyle = '#fff';
-  ctx.font = '700 48px ui-sans-serif, system-ui, sans-serif';
-  ctx.fillText('LinkedIn', w / 2, h - 130);
-  ctx.font = '500 30px ui-monospace, monospace';
-  ctx.fillStyle = 'rgba(255,255,255,0.85)';
-  ctx.fillText('@adnjoo  ↗', w / 2, h - 80);
-}
 function drawName(ctx, w, h) {
   const g = ctx.createLinearGradient(0, 0, 0, h);
   g.addColorStop(0, '#2a2036'); g.addColorStop(1, '#1c1526');
@@ -305,7 +310,7 @@ const links = [];          // { frame, plane, halo, url, basePos:Vector3[], norm
 const pickables = [];      // meshes for raycasting -> mesh.userData.link
 
 // facing: 'z' (back wall, normal +Z) or 'x' (left wall, normal +X)
-async function addFrame({ model, p, ry = 0, facing = 'z', url, draw, canvasW = 512, canvasH = 640 }) {
+async function addFrame({ model, p, ry = 0, facing = 'z', url, draw, image, canvasW = 512, canvasH = 640 }) {
   const frame = await place(model, { p, ry });
   const box = new THREE.Box3().setFromObject(frame);
   const size = new THREE.Vector3(); box.getSize(size);
@@ -324,7 +329,9 @@ async function addFrame({ model, p, ry = 0, facing = 'z', url, draw, canvasW = 5
   }
 
   // art plane (unlit so it's always legible, like a small lit picture)
-  const tex = texFrom(draw, canvasW, canvasH);
+  const tex = image
+    ? texFromImage(await loadImage(image), canvasW, canvasH)
+    : texFrom(draw, canvasW, canvasH);
   const mat = new THREE.MeshBasicMaterial({ map: tex, toneMapped: false });
   const plane = new THREE.Mesh(new THREE.PlaneGeometry(planeW, planeH), mat);
   plane.position.copy(pos);
@@ -380,7 +387,7 @@ async function build() {
     }),
     addFrame({
       model: 'pictureframe_small_C', p: [2.4, 3.05, -4.42], facing: 'z',
-      url: 'https://linkedin.com/in/adnjoo', draw: drawLinkedIn, canvasW: 512, canvasH: 620
+      url: null, image: 'assets/081526.PNG', canvasW: 512, canvasH: 620
     }),
 
     // --- name plaque on the left wall ---
